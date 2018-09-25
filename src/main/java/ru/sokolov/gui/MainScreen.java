@@ -13,18 +13,18 @@ import javax.swing.*;
 
 public class MainScreen extends Application {
 
-    private static int width = 1920/2;
-    private static int height = 1080/2;
+    private static int width = 1920 / 2;
+    private static int height = 1080 / 2;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         StackPane layout = new StackPane();
         Button testButton = new TestButton(primaryStage);
         layout.getChildren().add(testButton);
         Scene scene = new Scene(layout, width, height);
 
         scene.setOnKeyPressed(event -> {
-            if(KeyCode.ESCAPE.equals(event.getCode())){
+            if (KeyCode.ESCAPE.equals(event.getCode())) {
                 System.exit(0);
             }
         });
