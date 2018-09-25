@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class Main {
     public static void main(String[] args) throws InterruptedException {
        // ClassLoader classLoader = getClass().getClassLoader();
