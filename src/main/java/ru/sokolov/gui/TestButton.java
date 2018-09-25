@@ -22,11 +22,8 @@ public class TestButton extends Button {
 
     public TestButton(Stage parent) {
         this.setText("SEND SHIET");
-        this.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                RequestPopup requestPopup = new RequestPopup(parent);
-            }
+        this.setOnAction(event -> {
+            RequestPopup requestPopup = new RequestPopup(parent);
         });
     }
 

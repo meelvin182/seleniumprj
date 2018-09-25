@@ -24,12 +24,9 @@ public class RequestPopup {
         stage.setTitle("ENTER REQUEST SHIED PLEZ");
         stage.initOwner(parent);
         Scene scene = new Scene(layout, 450, 450);
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if(KeyCode.ESCAPE.equals(event.getCode())){
-                    System.exit(0);
-                }
+        scene.setOnKeyPressed(event -> {
+            if(KeyCode.ESCAPE.equals(event.getCode())){
+                System.exit(0);
             }
         });
         stage.setScene(scene);
