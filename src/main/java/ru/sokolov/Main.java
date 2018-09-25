@@ -12,7 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Degrod\\Desktop\\chromedriver.exe");
+       // ClassLoader classLoader = getClass().getClassLoader();
+        //File file = new File(classLoader.getResource("chromedriver.exe").getFile());
+        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         WebDriver driver = new ChromeDriver();
         driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
        // TimeUnit.SECONDS.sleep(5);
