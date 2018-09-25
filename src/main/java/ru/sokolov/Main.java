@@ -1,10 +1,10 @@
 package ru.sokolov;
 
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import ru.stqa.selenium.factory.WebDriverPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
        // ClassLoader classLoader = getClass().getClassLoader();
         //File file = new File(classLoader.getResource("chromedriver.exe").getFile());
-        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "classes/chromedriver.exe");
         WebDriver driver = new ChromeDriver();
         driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
        // TimeUnit.SECONDS.sleep(5);
