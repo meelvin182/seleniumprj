@@ -15,10 +15,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import ru.sokolov.model.RequestEntity;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -46,7 +48,7 @@ public class RequestPopup {
 
         //Nachalo mata
         HBox key = new HBox();
-        key.getChildren().add(new Text("SORRY ZA MAT"));
+        key.getChildren().add(new Text("Ключ доступа"));
         fields.forEach(textField -> {
             int index = fields.indexOf(textField);
             textField.setPromptText(fieldLenghts.get(index));
@@ -71,13 +73,13 @@ public class RequestPopup {
 
         //KADASTROVIE NUMS LIST
         TextField nums = new TextField();
-        nums.setPromptText("Enter KADASTROVIE BLYAT nums");
+        nums.setPromptText("Enter cadastre nums");
         //LIST END
 
         //PADAT' VNIZ SPISOK
         ComboBox box = new ComboBox();
         box.getItems().addAll(ruzkeRegions);
-        box.setPromptText("SELECT A REGION");
+        box.setPromptText("Select a region");
         //PADAT' VNIZ SPISOK KONEC
 
         //Failochooser
@@ -87,15 +89,15 @@ public class RequestPopup {
 
         Button button = new Button();
         button.setText("...");
-        TextField field = new TextField();
-        field.setPromptText("Choose folder");
+        TextField pathField = new TextField();
+        pathField.setPromptText("Choose folder");
         button.setOnAction(event -> {
             DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("QWE QWE");
+            chooser.setTitle("Request save folder");
             File selectedDirectory = chooser.showDialog(stage);
-            field.setText(selectedDirectory == null ? null : selectedDirectory.getAbsolutePath());
+            pathField.setText(selectedDirectory == null ? null : selectedDirectory.getAbsolutePath());
         });
-        path.getChildren().add(field);
+        path.getChildren().add(pathField);
         path.getChildren().add(button);
         //END FAILOCHOOSER
 
@@ -110,6 +112,15 @@ public class RequestPopup {
         //SEND BUTTON
         HBox bottom =  new HBox();
         Button sendButton = new Button();
+        sendButton.setOnAction(event -> {
+            RequestEntity entity = new RequestEntity(
+                    fields.stream().map(s -> s == null ? null : s.getText()).collect(Collectors.toList()),
+                    Collections.singletonList(nums == null ? null : nums.getText()),
+                    box.getValue() == null ? null : box.getValue().toString(),
+                    pathField.getText(),
+                    request.isSelected(),
+                    otherRequest.isSelected());
+        });
         sendButton.setText("SEND REQUEST");
         bottom.getChildren().addAll(sendButton);
         bottom.setAlignment(Pos.BOTTOM_CENTER);
