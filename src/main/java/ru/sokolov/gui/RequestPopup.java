@@ -17,7 +17,10 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import ru.sokolov.model.RequestEntity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -143,8 +146,9 @@ public class RequestPopup {
     private List<String> loadRegions(){
         List<String> values = new ArrayList<>();
         try{
-            File file = new File( getClass().getClassLoader().getResource("regions.txt").getFile());  // create File object to read from
-            Scanner scanner = new Scanner(file );       // create scanner to read
+            InputStream in = getClass().getResourceAsStream("/regions.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            Scanner scanner = new Scanner(reader );       // create scanner to read
             while(scanner.hasNextLine()){  // while there is a next line
                 values.add(scanner.nextLine());
             } } catch (Exception e){
