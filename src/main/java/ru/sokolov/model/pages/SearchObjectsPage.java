@@ -16,6 +16,7 @@ public class SearchObjectsPage {
 
     private WebElement cadastreNums;
     private WebElement streetName;
+    //getAttribute("value") should be used for this one, to retrieve it's text
     private WebElement region;
     private WebElement findButton;
 
