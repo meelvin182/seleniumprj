@@ -5,13 +5,13 @@ import java.util.List;
 public class RequestEntity {
 
     private List<String> keyParts;
-    private List<String> cadastreNums;
+    private String cadastreNums;
     private String region;
     private String filePath;
     private boolean getObjectInfo;
     private boolean getChangeRightsInfo;
 
-    public RequestEntity(List<String> keyParts, List<String> cadastreNums, String region, String filePath, boolean getObjectInfo, boolean getChangeRightsInfo) {
+    public RequestEntity(List<String> keyParts, String cadastreNums, String region, String filePath, boolean getObjectInfo, boolean getChangeRightsInfo) {
         this.keyParts = keyParts;
         this.cadastreNums = cadastreNums;
         this.region = region;
@@ -28,11 +28,11 @@ public class RequestEntity {
         this.keyParts = keyParts;
     }
 
-    public List<String> getCadastreNums() {
+    public String getCadastreNums() {
         return cadastreNums;
     }
 
-    public void setCadastreNums(List<String> cadastreNums) {
+    public void setCadastreNums(String cadastreNums) {
         this.cadastreNums = cadastreNums;
     }
 

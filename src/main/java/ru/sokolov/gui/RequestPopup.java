@@ -119,7 +119,7 @@ public class RequestPopup {
         sendButton.setOnAction(event -> {
             RequestEntity entity = new RequestEntity(
                     fields.stream().map(s -> s == null ? null : s.getText()).collect(Collectors.toList()),
-                    Collections.singletonList(nums == null ? null : nums.getText()),
+                    nums == null ? null : nums.getText(),
                     box.getValue() == null ? null : box.getValue().toString(),
                     pathField.getText(),
                     request.isSelected(),
