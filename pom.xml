@@ -98,7 +98,7 @@
               <outfile>target/seleniumprj.exe</outfile>
               <downloadUrl>http://java.com/download</downloadUrl>
               <classPath>
-                <mainClass>de.thz.cameracontrol.server.Server</mainClass>
+                <mainClass>ru.sokolov.gui.MainScreen</mainClass>
               </classPath>
               <jre>
                 <bundledJre64Bit>false</bundledJre64Bit>
@@ -115,8 +115,8 @@
                 <productVersion>1.0.0.0</productVersion>
                 <txtProductVersion>1.0.0.0</txtProductVersion>
                 <productName>${project.name}</productName>
-                <internalName>AppName</internalName>
-                <originalFilename>CameraControl.exe</originalFilename>
+                <internalName>seleniumprj</internalName>
+                <originalFilename>seleniumprj.exe</originalFilename>
               </versionInfo>
             </configuration>
           </execution>
