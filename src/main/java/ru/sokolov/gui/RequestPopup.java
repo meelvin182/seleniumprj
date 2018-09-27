@@ -57,10 +57,10 @@ public class RequestPopup {
             textField.setPromptText(fieldLenghts.get(index));
             textField.setOnKeyTyped(event -> {
                 int maxLength = fieldLenghts.get(index).length();
-                if(textField.getText().length() == maxLength){
-                    if(index<fields.size()-1){
+                if (textField.getText().length() == maxLength) {
+                    if (index < fields.size() - 1) {
                         event.consume();
-                        fields.get(index+1).requestFocus();
+                        fields.get(index + 1).requestFocus();
                     } else {
                         event.consume();
                     }
@@ -68,8 +68,9 @@ public class RequestPopup {
             });
             ObservableList<Node> chld = key.getChildren();
             chld.add(textField);
-            chld.add(new Text("-"));});
-        key.getChildren().remove(key.getChildren().size()-1);
+            chld.add(new Text("-"));
+        });
+        key.getChildren().remove(key.getChildren().size() - 1);
         key.setSpacing(10);
         key.setPrefWidth(200);
         //Konec mata
@@ -113,7 +114,7 @@ public class RequestPopup {
         //GET VALUE ETO .ISSELECTED
 
         //SEND BUTTON
-        HBox bottom =  new HBox();
+        HBox bottom = new HBox();
         Button sendButton = new Button();
         sendButton.setOnAction(event -> {
             RequestEntity entity = new RequestEntity(
@@ -134,7 +135,7 @@ public class RequestPopup {
 
         Scene scene = new Scene(layout, 450, 450);
         scene.setOnKeyPressed(event -> {
-            if(KeyCode.ESCAPE.equals(event.getCode())){
+            if (KeyCode.ESCAPE.equals(event.getCode())) {
                 System.exit(0);
             }
         });
@@ -143,15 +144,16 @@ public class RequestPopup {
 
     }
 
-    private List<String> loadRegions(){
+    private List<String> loadRegions() {
         List<String> values = new ArrayList<>();
-        try{
+        try {
             InputStream in = getClass().getResourceAsStream("/regions.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            Scanner scanner = new Scanner(reader );       // create scanner to read
-            while(scanner.hasNextLine()){  // while there is a next line
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            Scanner scanner = new Scanner(reader);       // create scanner to read
+            while (scanner.hasNextLine()) {  // while there is a next line
                 values.add(scanner.nextLine());
-            } } catch (Exception e){
+            }
+        } catch (Exception e) {
             System.out.println(e);
             System.exit(1);
         }
