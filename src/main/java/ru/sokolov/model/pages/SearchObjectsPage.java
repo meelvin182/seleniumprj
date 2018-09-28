@@ -39,8 +39,7 @@ public class SearchObjectsPage extends AbstractPage {
                     if (s.getText().equals("Найти")) findButton = s;
                 });
         setTextFieldElements(driver);
-        setStreetName("123 123");
-        setCadastreNums("123;456;789");
+        setCadastreNums(this.entity.getCadastreNums());
         setRegion(this.entity.getRegion());
     }
 

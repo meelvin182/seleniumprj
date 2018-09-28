@@ -30,7 +30,8 @@ public class Main {
 
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
-        entity.setRegion(regions.get(84));
+        entity.setRegion(regions.get(30));
+        entity.setCadastreNums("50:27:0040215:179");
         new LoginPage(driver, entity).process();
     }
 
