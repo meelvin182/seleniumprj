@@ -5,12 +5,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.RequestEntity;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class SearchObjectsPage extends AbstractPage {
 
@@ -91,10 +89,8 @@ public class SearchObjectsPage extends AbstractPage {
         WebElement next = driver.findElement(By.xpath("//span[contains(text(), 'Next')]"));
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '" + name + "')]")));
         List<WebElement> tableRows = table.findElement(By.tagName("table")).findElements(By.tagName("tr"));
-        Iterator iterator = tableRows.iterator();
-        while (iterator.hasNext()) {
-            WebElement element = (WebElement) iterator.next();
-            if (element.getText().equals(value)) {
+        for(WebElement element : tableRows){
+            if(element.getText().equals(value)){
                 element.click();
                 return;
             }
@@ -109,6 +105,6 @@ public class SearchObjectsPage extends AbstractPage {
     }
 
     public void process() {
-        pushFind();
+        //pushFind();
     }
 }
