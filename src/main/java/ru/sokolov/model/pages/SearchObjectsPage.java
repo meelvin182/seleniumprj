@@ -7,7 +7,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.RequestEntity;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class SearchObjectsPage extends AbstractPage {
@@ -105,6 +104,6 @@ public class SearchObjectsPage extends AbstractPage {
     }
 
     public void process() {
-        //pushFind();
+        pushFind();
     }
 }

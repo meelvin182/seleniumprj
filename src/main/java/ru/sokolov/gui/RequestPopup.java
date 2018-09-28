@@ -15,7 +15,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.pages.LoginPage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -123,7 +126,12 @@ public class RequestPopup {
                     pathField.getText(),
                     request.isSelected(),
                     otherRequest.isSelected());
+            System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
+            WebDriver driver = new ChromeDriver();
+            driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
+            new LoginPage(driver, entity).process();
         });
+
         sendButton.setText("SEND REQUEST");
         bottom.getChildren().addAll(sendButton);
         bottom.setAlignment(Pos.BOTTOM_CENTER);
@@ -140,7 +148,6 @@ public class RequestPopup {
         });
         stage.setScene(scene);
         stage.show();
-
     }
 
     private static List<String> loadRegions() {
