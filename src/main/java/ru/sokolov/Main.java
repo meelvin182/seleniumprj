@@ -3,22 +3,22 @@ package ru.sokolov;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import ru.sokolov.model.RequestEntity;
 import ru.sokolov.model.pages.LoginPage;
-import ru.sokolov.model.pages.SearchObjectsPage;
-import ru.sokolov.model.pages.SecondPage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Deprecated
 public class Main {
 
     private static List<String> regions = loadRegions();
-
 
     public static void main(String[] args) throws InterruptedException {
        // ClassLoader classLoader = getClass().getClassLoader();
@@ -28,14 +28,10 @@ public class Main {
         driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
        // TimeUnit.SECONDS.sleep(5);
 
-        LoginPage loginPage = new LoginPage(driver, "f5939ffe-f955-421a-b30b-884a5c527803");
-        SecondPage page = new SecondPage(driver);
-        page.openSearchParams();
-
-        SearchObjectsPage page1 = new SearchObjectsPage(driver);
-        page1.setCadastreNums("1232132132");
-        page1.setStreetName("QWEQWEQWEQWEQEW");
-        page1.setRegion(regions.get(34));
+        RequestEntity entity = new RequestEntity();
+        entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
+        entity.setRegion(regions.get(84));
+        new LoginPage(driver, entity).process();
     }
 
 

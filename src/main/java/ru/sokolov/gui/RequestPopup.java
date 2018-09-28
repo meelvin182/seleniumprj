@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -36,7 +35,7 @@ public class RequestPopup {
     private List<TextField> fields = Stream.generate(TextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
-    private List<String> ruzkeRegions = loadRegions();
+    public static List<String> ruzkeRegions = loadRegions();
 
     public RequestPopup(Stage parent) {
 
@@ -144,10 +143,10 @@ public class RequestPopup {
 
     }
 
-    private List<String> loadRegions() {
+    private static List<String> loadRegions() {
         List<String> values = new ArrayList<>();
         try {
-            InputStream in = getClass().getResourceAsStream("/regions.txt");
+            InputStream in = RequestPopup.class.getResourceAsStream("/regions.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             Scanner scanner = new Scanner(reader);       // create scanner to read
             while (scanner.hasNextLine()) {  // while there is a next line

@@ -11,6 +11,9 @@ public class RequestEntity {
     private boolean getObjectInfo;
     private boolean getChangeRightsInfo;
 
+    public RequestEntity() {
+    }
+
     public RequestEntity(List<String> keyParts, String cadastreNums, String region, String filePath, boolean getObjectInfo, boolean getChangeRightsInfo) {
         this.keyParts = keyParts;
         this.cadastreNums = cadastreNums;

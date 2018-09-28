@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import ru.sokolov.model.RequestEntity;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -22,11 +23,11 @@ public class SecondPage extends AbstractPage{
     private WebElement myRequestsButton;
     private WebElement myBillsButton;
 
-    public SecondPage(WebDriver driver) {
+    public SecondPage(WebDriver driver, RequestEntity entity) {
+        this.entity = entity;
         waitForPageLoad(driver);
         waitForButtonsLoaded();
         for(WebElement element : driver.findElements(By.className(SECOND_PAGE_ELEMENTS_CLASS))){
-            System.out.println(element.getText());
             if(SEARCH_BUTTON_ELEMENT_NAME.equals(element.getText())){
                 searchButton = element;
             } else if (RIGHTHOLDER_REQUEST_BUTTON_ELEMENT_NAME.equals(element.getText())){
@@ -65,5 +66,10 @@ public class SecondPage extends AbstractPage{
             String name = iterator.next();
             driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ name +"')]")));
         }
+    }
+
+    public SearchObjectsPage process(){
+        openSearchParams();
+        return new SearchObjectsPage(driver, entity);
     }
 }

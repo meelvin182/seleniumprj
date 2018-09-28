@@ -4,11 +4,13 @@ import com.google.common.base.Predicate;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import ru.sokolov.model.RequestEntity;
 
 public class AbstractPage {
 
     protected WebDriverWait driverWait;
     protected WebDriver driver;
+    protected RequestEntity entity;
 
     public void waitForPageLoad(WebDriver driver) {
         this.driver = driver;
@@ -23,5 +25,4 @@ public class AbstractPage {
         };
         driverWait.until(pageLoaded);
     }
-
 }
