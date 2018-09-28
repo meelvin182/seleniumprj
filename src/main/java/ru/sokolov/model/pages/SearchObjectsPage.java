@@ -3,16 +3,19 @@ package ru.sokolov.model.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class SearchObjectsPage {
+public class SearchObjectsPage extends AbstractPage {
 
     public final static String CADASTRE_AND_STREET_ELEMENTS_CLASS =  "v-textfield-prompt";
-
-    private WebDriver driver;
+    public final static String dropdownClassName = "v-filterselect-suggestmenu";
+    public final static String dropdownButtonClassName = "v-filterselect-button";
+    public final static String findButtonClassName = "v-button-caption";
 
     private WebElement cadastreNums;
     private WebElement streetName;
@@ -21,8 +24,10 @@ public class SearchObjectsPage {
     private WebElement findButton;
 
     public SearchObjectsPage(WebDriver driver) {
-        this.driver = driver;
-        driver.findElements(By.className("v-button-caption"))
+        waitForPageLoad(driver);
+        driverWait = new WebDriverWait(driver, 2000);
+        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(dropdownButtonClassName)));
+        driver.findElements(By.className(findButtonClassName))
                 .forEach(s -> {if (s.getText().equals("Найти"))findButton = s;});
         setTextFieldElements(driver);
     }
@@ -52,15 +57,15 @@ public class SearchObjectsPage {
     }
 
     public void setRegion(String region) throws InterruptedException{
-        WebElement dropdownButton = driver.findElements(By.className("v-filterselect-button")).get(0);
+        WebElement dropdownButton = driver.findElements(By.className(dropdownButtonClassName)).get(0);
         dropdownButton.click();
-        TimeUnit.MILLISECONDS.sleep(500);
-        WebElement table = driver.findElement(By.className("v-filterselect-suggestmenu"));
-        selectDropdown(table, region);
+        selectDropdown(region);
         this.region = driver.findElement(By.className("v-filterselect-input"));
     }
 
-    private void selectDropdown(WebElement table, String value){
+    private void selectDropdown(String value){
+        driverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className(dropdownClassName)));
+        WebElement table = driver.findElement(By.className(dropdownClassName));
         WebElement next = driver.findElement(By.xpath("//span[contains(text(), 'Next')]"));
         List<WebElement> tableRows = table.findElement(By.tagName("table")).findElements(By.tagName("tr"));
         Iterator iterator = tableRows.iterator();
@@ -77,7 +82,7 @@ public class SearchObjectsPage {
         } catch (Exception e){
             return;
         }
-        selectDropdown(table, value);
+        selectDropdown(value);
     }
 
     private void pushFind(){
