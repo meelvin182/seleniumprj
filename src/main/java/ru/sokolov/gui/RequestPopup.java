@@ -31,6 +31,8 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ru.sokolov.CoreKernelSupaClazz.sendRequest;
+
 public class RequestPopup {
 
     private static int width = 800;
@@ -127,12 +129,10 @@ public class RequestPopup {
                     request.isSelected(),
                     otherRequest.isSelected());
             System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
-            WebDriver driver = new ChromeDriver();
-            driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
-            new LoginPage(driver, entity).process();
+            sendRequest(entity);
         });
 
-        sendButton.setText("SEND REQUEST");
+        sendButton.setText("Отправить");
         bottom.getChildren().addAll(sendButton);
         bottom.setAlignment(Pos.BOTTOM_CENTER);
         //KONEC SEND MATON

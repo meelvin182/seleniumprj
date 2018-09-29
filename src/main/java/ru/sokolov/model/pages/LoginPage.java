@@ -15,7 +15,8 @@ public class LoginPage extends AbstractPage {
 
     List<WebElement> keyFields;
 
-    public LoginPage(WebDriver driver, RequestEntity entity) {
+    @Override
+    public LoginPage setPageData(WebDriver driver, RequestEntity entity) {
         this.entity = entity;
         this.driver = driver;
         driverWait = new WebDriverWait(driver, 2000);
@@ -31,6 +32,10 @@ public class LoginPage extends AbstractPage {
             driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
         }
         driver.findElement(By.className("normalButton")).click();
+        return this;
+    }
+
+    public LoginPage() {
     }
 
     public WebDriver getDriver() {
@@ -41,7 +46,7 @@ public class LoginPage extends AbstractPage {
         this.driver = driver;
     }
 
-    public void process(){
-        new SecondPage(driver, entity).process().process();
+    public SecondPage login(){
+        return new SecondPage().setPageData(driver, entity);
     }
 }

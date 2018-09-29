@@ -6,7 +6,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.RequestEntity;
 
-public class AbstractPage {
+import java.util.concurrent.locks.ReentrantLock;
+
+public abstract class AbstractPage {
 
     protected WebDriverWait driverWait;
     protected WebDriver driver;
@@ -25,4 +27,6 @@ public class AbstractPage {
         };
         driverWait.until(pageLoaded);
     }
+
+    public abstract AbstractPage setPageData(WebDriver driver, RequestEntity entity);
 }

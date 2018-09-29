@@ -25,7 +25,8 @@ public class SearchObjectsPage extends AbstractPage {
 
     private int regionsAmountOnDropdown;
 
-    public SearchObjectsPage(WebDriver driver, RequestEntity entity) {
+    @Override
+    public SearchObjectsPage setPageData(WebDriver driver, RequestEntity entity) {
         this.entity = entity;
         waitForPageLoad(driver);
         driverWait = new WebDriverWait(driver, 2000);
@@ -38,6 +39,7 @@ public class SearchObjectsPage extends AbstractPage {
         setTextFieldElements(driver);
         setCadastreNums(this.entity.getCadastreNums());
         setRegion(this.entity.getRegion());
+        return this;
     }
 
     public void setTextFieldElements(WebDriver driver) {
@@ -99,11 +101,7 @@ public class SearchObjectsPage extends AbstractPage {
 
     }
 
-    private void pushFind() {
+    public void pushFind() {
         findButton.click();
-    }
-
-    public void process() {
-        pushFind();
     }
 }

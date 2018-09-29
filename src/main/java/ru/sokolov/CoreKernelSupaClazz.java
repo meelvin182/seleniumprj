@@ -1,0 +1,57 @@
+package ru.sokolov;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.pages.LoginPage;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.locks.ReentrantLock;
+
+public final class CoreKernelSupaClazz {
+
+    private static final ReentrantLock checkrequestsLock = new ReentrantLock();
+    private static Thread requestsChecker;
+
+    private static WebDriver driver;
+    private static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
+
+    static {
+        //TODO Make setProperty work properly both in jar and IDE
+        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
+        driver = new ChromeDriver();
+        requestsChecker = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        checkForProcessedRequests();
+                    }
+                }, 0, 1000 * 60 * 30); //Once per 30 minutes
+            }
+        });
+        requestsChecker.setDaemon(true);
+    }
+
+    public static void checkForProcessedRequests(){
+        checkrequestsLock.lock();
+        //TODO Add logic here
+        checkrequestsLock.unlock();
+    }
+
+    public static void sendRequest(RequestEntity entity){
+        checkrequestsLock.lock();
+        driver.navigate().to(MAIN_PAGE);
+        new LoginPage().setPageData(driver, entity).login().search().pushFind();
+        checkrequestsLock.unlock();
+    }
+
+    //TODO This one will close program if it's unpaid
+    public static void twentyThousandsMethod(){}
+
+    public static void loginIfTimeOut(){}
+
+}

@@ -15,24 +15,19 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import static ru.sokolov.CoreKernelSupaClazz.sendRequest;
+
 @Deprecated
 public class Main {
 
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws InterruptedException {
-       // ClassLoader classLoader = getClass().getClassLoader();
-        //File file = new File(classLoader.getResource("chromedriver.exe").getFile());
-        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-        driver.navigate().to("https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn");
-       // TimeUnit.SECONDS.sleep(5);
-
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
-        new LoginPage(driver, entity).process();
+        sendRequest(entity);
     }
 
 

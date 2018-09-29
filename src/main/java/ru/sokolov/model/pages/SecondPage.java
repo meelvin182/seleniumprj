@@ -23,7 +23,8 @@ public class SecondPage extends AbstractPage{
     private WebElement myRequestsButton;
     private WebElement myBillsButton;
 
-    public SecondPage(WebDriver driver, RequestEntity entity) {
+    @Override
+    public SecondPage setPageData(WebDriver driver, RequestEntity entity) {
         this.entity = entity;
         waitForPageLoad(driver);
         waitForButtonsLoaded();
@@ -38,6 +39,10 @@ public class SecondPage extends AbstractPage{
                 myBillsButton = element;
             }
         }
+        return this;
+    }
+
+    public SecondPage() {
     }
 
     public void openSearchParams(){
@@ -68,8 +73,7 @@ public class SecondPage extends AbstractPage{
         }
     }
 
-    public SearchObjectsPage process(){
-        openSearchParams();
-        return new SearchObjectsPage(driver, entity);
+    public SearchObjectsPage search(){
+        return new SearchObjectsPage().setPageData(driver, entity);
     }
 }
