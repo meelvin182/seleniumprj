@@ -17,17 +17,15 @@ public class SearchObjectsPage extends AbstractPage {
     public final static String findButtonClassName = "v-button-caption";
     public final static String statusElementClassName = "v-filterselect-status";
 
-    private WebElement cadastreNums;
-    private WebElement streetName;
+    private static WebElement cadastreNums;
+    private static WebElement streetName;
     //getAttribute("value") should be used for this one, to retrieve it's text
-    private WebElement region;
-    private WebElement findButton;
+    private static WebElement region;
+    private static WebElement findButton;
 
-    private int regionsAmountOnDropdown;
+    private static int regionsAmountOnDropdown;
 
-    @Override
-    public SearchObjectsPage setPageData(WebDriver driver, RequestEntity entity) {
-        this.entity = entity;
+    public static void setPageData(RequestEntity entity) {
         waitForPageLoad(driver);
         driverWait = new WebDriverWait(driver, 2000);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(dropdownButtonClassName)));
@@ -36,13 +34,12 @@ public class SearchObjectsPage extends AbstractPage {
                 .forEach(s -> {
                     if (s.getText().equals("Найти")) findButton = s;
                 });
-        setTextFieldElements(driver);
-        setCadastreNums(this.entity.getCadastreNums());
-        setRegion(this.entity.getRegion());
-        return this;
+        setTextFieldElements();
+        setCadastreNums(entity.getCadastreNums());
+        setRegion(entity.getRegion());
     }
 
-    public void setTextFieldElements(WebDriver driver) {
+    public static void setTextFieldElements() {
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(CADASTRE_AND_STREET_ELEMENTS_CLASS)));
         List<WebElement> elementList = driver.findElements(By.className(CADASTRE_AND_STREET_ELEMENTS_CLASS));
         int maxWidth = Integer.parseInt(elementList.get(0).getAttribute("style").replaceAll("[\\D.]", ""));
@@ -55,7 +52,7 @@ public class SearchObjectsPage extends AbstractPage {
         }
     }
 
-    public void setCadastreNums(String cadastreNumVal) {
+    public static void setCadastreNums(String cadastreNumVal) {
         cadastreNums.sendKeys(cadastreNumVal);
     }
 
@@ -67,22 +64,21 @@ public class SearchObjectsPage extends AbstractPage {
         return region;
     }
 
-    public void setRegion(String region) {
+    public static void setRegion(String region) {
         driverWait.until(ExpectedConditions.elementToBeClickable(By.className(dropdownButtonClassName)));
         WebElement dropdownButton = driver.findElements(By.className(dropdownButtonClassName)).get(0);
         dropdownButton.click();
         selectDropdown(region);
-        this.region = driver.findElement(By.className("v-filterselect-input"));
     }
 
-    private void selectDropdown(String value) {
+    private static void selectDropdown(String value) {
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(statusElementClassName)));
         WebElement element = driver.findElement(By.className(statusElementClassName));
         regionsAmountOnDropdown = Integer.parseInt(element.getText().split("/")[1]);
         selectDropdown(value, 0);
     }
 
-    private void selectDropdown(String value, int startnum) {
+    private static void selectDropdown(String value, int startnum) {
         int endnum = regionsAmountOnDropdown - startnum >= 10 ? startnum + 9 : regionsAmountOnDropdown;
         String name = (startnum == 0 ? 1 : startnum) + "-" + endnum;
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(dropdownClassName)));
@@ -101,7 +97,46 @@ public class SearchObjectsPage extends AbstractPage {
 
     }
 
-    public void pushFind() {
+    public static void pushFind() {
         findButton.click();
+    }
+
+    public static void sendRequest(RequestEntity entity) throws Exception{
+        SecondPage.search(entity);
+        setPageData(entity);
+        pushFind();
+    }
+
+
+    public static WebElement getCadastreNums() {
+        return cadastreNums;
+    }
+
+    public static void setCadastreNums(WebElement cadastreNums) {
+        SearchObjectsPage.cadastreNums = cadastreNums;
+    }
+
+    public static WebElement getStreetName() {
+        return streetName;
+    }
+
+    public static void setStreetName(WebElement streetName) {
+        SearchObjectsPage.streetName = streetName;
+    }
+
+    public static WebElement getFindButton() {
+        return findButton;
+    }
+
+    public static void setFindButton(WebElement findButton) {
+        SearchObjectsPage.findButton = findButton;
+    }
+
+    public int getRegionsAmountOnDropdown() {
+        return regionsAmountOnDropdown;
+    }
+
+    public void setRegionsAmountOnDropdown(int regionsAmountOnDropdown) {
+        this.regionsAmountOnDropdown = regionsAmountOnDropdown;
     }
 }

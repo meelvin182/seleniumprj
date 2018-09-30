@@ -10,12 +10,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractPage {
 
-    protected WebDriverWait driverWait;
-    protected WebDriver driver;
-    protected RequestEntity entity;
+    protected static WebDriverWait driverWait;
+    protected static WebDriver driver;
+    protected static RequestEntity entity;
 
-    public void waitForPageLoad(WebDriver driver) {
-        this.driver = driver;
+    public static void waitForPageLoad(WebDriver driver) {
+        setDriver(driver);
         driverWait = new WebDriverWait(driver, 2000);
         Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
 
@@ -28,5 +28,15 @@ public abstract class AbstractPage {
         driverWait.until(pageLoaded);
     }
 
-    public abstract AbstractPage setPageData(WebDriver driver, RequestEntity entity) throws Exception;
+    public static void setDriverWait(WebDriverWait driverWait) {
+        AbstractPage.driverWait = driverWait;
+    }
+
+    public static void setDriver(WebDriver driver) {
+        AbstractPage.driver = driver;
+    }
+
+    public static void setEntity(RequestEntity entity) {
+        AbstractPage.entity = entity;
+    }
 }

@@ -22,12 +22,7 @@ public class LoginPage extends AbstractPage {
     private static final String TEXT_FIELD_CLASSNAME = "v-textfield";
     private static final String BUTTON_CLASSNAME = "normalButton";
 
-    List<WebElement> keyFields;
-
-    @Override
-    public LoginPage setPageData(WebDriver driver, RequestEntity entity) throws InterruptedException {
-        this.entity = entity;
-        this.driver = driver;
+    public static void setPageData(RequestEntity entity) throws InterruptedException {
         driverWait = new WebDriverWait(driver, 2000);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(BUTTON_CLASSNAME)));
@@ -36,7 +31,6 @@ public class LoginPage extends AbstractPage {
             list.addAll(driver.findElements(By.className("v-textfield")));
         }
         Iterator<String> iterator = entity.getKeyParts().iterator();
-        keyFields = list;
         for(WebElement element : list){
             String text = iterator.next();
             element.sendKeys(text);
@@ -44,22 +38,10 @@ public class LoginPage extends AbstractPage {
             //Unavoidable hack here, sometime random fields are skipped for unknown reason
             TimeUnit.MILLISECONDS.sleep(250);
         }
+
+    }
+
+    public static void login(){
         driver.findElement(By.className("normalButton")).click();
-        return this;
-    }
-
-    public LoginPage() {
-    }
-
-    public WebDriver getDriver() {
-        return driver;
-    }
-
-    public void setDriver(WebDriver driver) {
-        this.driver = driver;
-    }
-
-    public SecondPage login(){
-        return new SecondPage().setPageData(driver, entity);
     }
 }

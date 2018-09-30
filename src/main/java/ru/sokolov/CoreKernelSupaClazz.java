@@ -3,7 +3,10 @@ package ru.sokolov;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.pages.AbstractPage;
 import ru.sokolov.model.pages.LoginPage;
+import ru.sokolov.model.pages.SearchObjectsPage;
+import ru.sokolov.model.pages.SecondPage;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +24,7 @@ public final class CoreKernelSupaClazz {
         //TODO Make setProperty work properly both in jar and IDE
         System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         driver = new ChromeDriver();
+        AbstractPage.setDriver(driver);
         requestsChecker = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -45,7 +49,7 @@ public final class CoreKernelSupaClazz {
     public static void sendRequest(RequestEntity entity) throws Exception{
         checkrequestsLock.lock();
         driver.navigate().to(MAIN_PAGE);
-        new LoginPage().setPageData(driver, entity).login().search().pushFind();
+        SearchObjectsPage.sendRequest(entity);
         checkrequestsLock.unlock();
     }
 
