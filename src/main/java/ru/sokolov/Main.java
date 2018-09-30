@@ -22,7 +22,7 @@ public class Main {
 
     private static List<String> regions = loadRegions();
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));

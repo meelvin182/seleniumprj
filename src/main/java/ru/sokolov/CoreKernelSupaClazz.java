@@ -42,7 +42,7 @@ public final class CoreKernelSupaClazz {
         checkrequestsLock.unlock();
     }
 
-    public static void sendRequest(RequestEntity entity){
+    public static void sendRequest(RequestEntity entity) throws Exception{
         checkrequestsLock.lock();
         driver.navigate().to(MAIN_PAGE);
         new LoginPage().setPageData(driver, entity).login().search().pushFind();

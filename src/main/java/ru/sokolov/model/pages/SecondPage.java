@@ -74,6 +74,7 @@ public class SecondPage extends AbstractPage{
     }
 
     public SearchObjectsPage search(){
+        openSearchParams();
         return new SearchObjectsPage().setPageData(driver, entity);
     }
 }

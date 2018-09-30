@@ -129,7 +129,11 @@ public class RequestPopup {
                     request.isSelected(),
                     otherRequest.isSelected());
             System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
-            sendRequest(entity);
+            try {
+                sendRequest(entity);
+            } catch (Exception e){
+                System.out.println(e);
+            }
         });
 
         sendButton.setText("Отправить");

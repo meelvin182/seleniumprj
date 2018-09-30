@@ -28,5 +28,5 @@ public abstract class AbstractPage {
         driverWait.until(pageLoaded);
     }
 
-    public abstract AbstractPage setPageData(WebDriver driver, RequestEntity entity);
+    public abstract AbstractPage setPageData(WebDriver driver, RequestEntity entity) throws Exception;
 }
