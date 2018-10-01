@@ -1,10 +1,7 @@
 package ru.sokolov;
 
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
-import ru.sokolov.model.pages.LoginPage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -27,6 +24,7 @@ public class Main {
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
+        entity.setGetChangeRightsInfo(true);
         sendRequest(entity);
     }
 

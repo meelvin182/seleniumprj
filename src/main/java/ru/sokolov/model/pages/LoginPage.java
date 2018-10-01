@@ -1,21 +1,15 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.RequestEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class LoginPage extends AbstractPage {
 
@@ -25,7 +19,6 @@ public class LoginPage extends AbstractPage {
     public static void setPageData(RequestEntity entity) throws InterruptedException {
         driverWait = new WebDriverWait(driver, 2000);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
-        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(BUTTON_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
         while (list.size() != 5) {
             list.addAll(driver.findElements(By.className("v-textfield")));
@@ -36,7 +29,7 @@ public class LoginPage extends AbstractPage {
             element.sendKeys(text);
             driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
             //Unavoidable hack here, sometime random fields are skipped for unknown reason
-            TimeUnit.MILLISECONDS.sleep(250);
+            TimeUnit.MILLISECONDS.sleep(400);
         }
 
     }

@@ -4,9 +4,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
 import ru.sokolov.model.pages.AbstractPage;
-import ru.sokolov.model.pages.LoginPage;
-import ru.sokolov.model.pages.SearchObjectsPage;
-import ru.sokolov.model.pages.SecondPage;
+import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -49,13 +47,11 @@ public final class CoreKernelSupaClazz {
     public static void sendRequest(RequestEntity entity) throws Exception{
         checkrequestsLock.lock();
         driver.navigate().to(MAIN_PAGE);
-        SearchObjectsPage.sendRequest(entity);
+        RequestOverviewPage.sendRequest(entity);
         checkrequestsLock.unlock();
     }
 
     //TODO This one will close program if it's unpaid
     public static void twentyThousandsMethod(){}
-
-    public static void loginIfTimeOut(){}
 
 }

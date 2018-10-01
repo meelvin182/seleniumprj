@@ -5,9 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -15,10 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
-import ru.sokolov.model.pages.LoginPage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -110,11 +108,12 @@ public class RequestPopup {
         //END FAILOCHOOSER
 
         //REQUEST SHTO TO TAM CHECKBOX
-        CheckBox request = new CheckBox();
-        request.setText("Запросить сведения об объекте");
-
-        CheckBox otherRequest = new CheckBox();
-        otherRequest.setText("Запросить сведения о переходе прав на объект");
+        ToggleGroup toggleGroup = new ToggleGroup();
+        RadioButton one = new RadioButton("Запросить сведения об объекте");
+        RadioButton two = new RadioButton("Запросить сведения о переходе прав на объект");
+        one.setToggleGroup(toggleGroup);
+        two.setToggleGroup(toggleGroup);
+        toggleGroup.selectToggle(one);
         //GET VALUE ETO .ISSELECTED
 
         //SEND BUTTON
@@ -126,8 +125,8 @@ public class RequestPopup {
                     nums == null ? null : nums.getText(),
                     box.getValue() == null ? null : box.getValue().toString(),
                     pathField.getText(),
-                    request.isSelected(),
-                    otherRequest.isSelected());
+                    one.isSelected(),
+                    two.isSelected());
             System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
             try {
                 sendRequest(entity);
@@ -141,7 +140,7 @@ public class RequestPopup {
         bottom.setAlignment(Pos.BOTTOM_CENTER);
         //KONEC SEND MATON
 
-        vbox.getChildren().addAll(key, nums, box, path, request, otherRequest, bottom);
+        vbox.getChildren().addAll(key, nums, box, path, one, two, bottom);
         layout.getChildren().add(vbox);
 
         Scene scene = new Scene(layout, 450, 450);

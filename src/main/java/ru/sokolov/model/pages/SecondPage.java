@@ -1,7 +1,6 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.sokolov.model.RequestEntity;
@@ -90,6 +89,8 @@ public class SecondPage extends LoginPage{
     public static void search(RequestEntity entity) throws Exception{
         LoginPage.setPageData(entity);
         LoginPage.login();
+        waitForPageLoad(driver);
+        System.out.println("TRYIN TO SET PAGE DATA");
         setPageData();
         openSearchParams();
     }
