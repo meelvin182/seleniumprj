@@ -1,4 +1,4 @@
-package ru.sokolov.model;
+package ru.sokolov.model.entities;
 
 import java.util.List;
 

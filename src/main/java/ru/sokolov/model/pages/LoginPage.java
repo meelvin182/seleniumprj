@@ -4,7 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -16,7 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 import java.io.BufferedReader;
 import java.io.File;

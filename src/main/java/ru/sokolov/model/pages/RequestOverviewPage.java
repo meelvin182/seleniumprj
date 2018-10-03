@@ -2,7 +2,7 @@ package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 public class RequestOverviewPage extends AbstractPage{
 

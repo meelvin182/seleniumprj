@@ -3,7 +3,7 @@ package ru.sokolov.model.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -86,12 +86,23 @@ public class SecondPage extends LoginPage{
         searchButton.click();
     }
 
+    public static void openRequestsPage(){
+        myRequestsButton.click();
+    }
+
     public static void search(RequestEntity entity) throws Exception{
         LoginPage.setPageData(entity);
         LoginPage.login();
         waitForPageLoad(driver);
-        System.out.println("TRYIN TO SET PAGE DATA");
         setPageData();
         openSearchParams();
+    }
+
+    public static void openRequests(RequestEntity entity) throws Exception{
+        LoginPage.setPageData(entity);
+        LoginPage.login();
+        waitForPageLoad(driver);
+        setPageData();
+        openRequestsPage();
     }
 }

@@ -1,7 +1,7 @@
 package ru.sokolov;
 
 
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import static ru.sokolov.CoreKernelSupaClazz.sendRequest;
+import static ru.sokolov.CoreKernelSupaClazz.getRequests;
 
 @Deprecated
 public class Main {
@@ -25,7 +25,7 @@ public class Main {
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
         entity.setGetChangeRightsInfo(true);
-        sendRequest(entity);
+        getRequests(entity);
     }
 
 

@@ -3,7 +3,7 @@ package ru.sokolov.model.pages;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 
 public class RequestsPage extends AbstractPage {
 

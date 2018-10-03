@@ -2,8 +2,9 @@ package ru.sokolov;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import ru.sokolov.model.RequestEntity;
+import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.pages.AbstractPage;
+import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.util.Timer;
@@ -50,6 +51,12 @@ public final class CoreKernelSupaClazz {
         RequestOverviewPage.sendRequest(entity);
         checkrequestsLock.unlock();
     }
+
+    public static void getRequests(RequestEntity entity) throws Exception{
+        driver.navigate().to(MAIN_PAGE);
+        AllRequestsPage.process(entity);
+    }
+
 
     //TODO This one will close program if it's unpaid
     public static void twentyThousandsMethod(){}
