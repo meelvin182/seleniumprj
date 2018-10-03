@@ -1,5 +1,9 @@
 package ru.sokolov;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.RequestEntity;
@@ -38,20 +42,35 @@ public final class CoreKernelSupaClazz {
         requestsChecker.setDaemon(true);
     }
 
-    public static void checkForProcessedRequests(){
+    public static void checkForProcessedRequests() {
         checkrequestsLock.lock();
         //TODO Add logic here
         checkrequestsLock.unlock();
     }
 
-    public static void sendRequest(RequestEntity entity) throws Exception{
+    public static void sendRequest(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
         driver.navigate().to(MAIN_PAGE);
         RequestOverviewPage.sendRequest(entity);
         checkrequestsLock.unlock();
     }
 
+    public static void peformPut(String URI, String body) {
+        try {
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+            HttpPut putRequest = new HttpPut(URI);
+            StringEntity input = new StringEntity(body);
+            input.setContentType("application/json");
+
+            putRequest.setEntity(input);
+            HttpResponse response = httpClient.execute(putRequest);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     //TODO This one will close program if it's unpaid
-    public static void twentyThousandsMethod(){}
+    public static void twentyThousandsMethod() {
+    }
 
 }
