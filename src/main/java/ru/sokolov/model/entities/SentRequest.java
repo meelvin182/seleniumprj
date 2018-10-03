@@ -1,35 +1,35 @@
 package ru.sokolov.model.entities;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import javafx.beans.property.StringProperty;
+import org.openqa.selenium.WebElement;
 
-public class SentRequest extends RequestEntity implements Serializable {
+public class SentRequest {
 
-    private RequestEntity entity;
-    private String name;
+    private WebElement element;
+
+    private String requestNum;
+    private String creationDate;
     private String status;
+    private boolean download;
 
-    public SentRequest(RequestEntity entity) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        name = entity.getCadastreNums() + " " + dateFormat.format(new Date());
+    public SentRequest(WebElement element) {
+        this.element = element;
     }
 
-    public RequestEntity getEntity() {
-        return entity;
+    public String getRequestNum() {
+        return requestNum;
     }
 
-    public void setEntity(RequestEntity entity) {
-        this.entity = entity;
+    public void setRequestNum(String requestNum) {
+        this.requestNum = requestNum;
     }
 
-    public String getName() {
-        return name;
+    public String getCreationDate() {
+        return creationDate;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
     }
 
     public String getStatus() {
@@ -38,5 +38,21 @@ public class SentRequest extends RequestEntity implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public WebElement getElement() {
+        return element;
+    }
+
+    public void setElement(WebElement element) {
+        this.element = element;
+    }
+
+    public boolean isDownload() {
+        return download;
+    }
+
+    public void setDownload(boolean download) {
+        this.download = download;
     }
 }
