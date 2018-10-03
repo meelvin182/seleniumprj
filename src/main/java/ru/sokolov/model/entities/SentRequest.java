@@ -5,15 +5,12 @@ import org.openqa.selenium.WebElement;
 
 public class SentRequest {
 
-    private WebElement element;
-
     private String requestNum;
     private String creationDate;
     private String status;
     private boolean download;
 
-    public SentRequest(WebElement element) {
-        this.element = element;
+    public SentRequest() {
     }
 
     public String getRequestNum() {
@@ -38,14 +35,6 @@ public class SentRequest {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public WebElement getElement() {
-        return element;
-    }
-
-    public void setElement(WebElement element) {
-        this.element = element;
     }
 
     public boolean isDownload() {

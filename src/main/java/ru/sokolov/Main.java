@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import static ru.sokolov.CoreKernelSupaClazz.getRequests;
+import static ru.sokolov.CoreKernelSupaClazz.checkForProcessedRequests;
 
 @Deprecated
 public class Main {
@@ -25,9 +25,8 @@ public class Main {
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
         entity.setGetChangeRightsInfo(true);
-        getRequests(entity);
+        checkForProcessedRequests();
     }
-
 
     //CTRL CV TO TEST
     @SuppressWarnings("all")

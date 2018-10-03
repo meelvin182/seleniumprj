@@ -7,9 +7,11 @@ import ru.sokolov.model.pages.AbstractPage;
 import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.RequestOverviewPage;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public final class CoreKernelSupaClazz {
 
@@ -41,7 +43,14 @@ public final class CoreKernelSupaClazz {
 
     public static void checkForProcessedRequests(){
         checkrequestsLock.lock();
-        //TODO Add logic here
+        //Stub login entity
+        RequestEntity entity = new RequestEntity();
+        entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
+        try {
+            getRequests(entity);
+        } catch (Exception e){
+            System.out.println(e);
+        }
         checkrequestsLock.unlock();
     }
 
@@ -56,7 +65,6 @@ public final class CoreKernelSupaClazz {
         driver.navigate().to(MAIN_PAGE);
         AllRequestsPage.process(entity);
     }
-
 
     //TODO This one will close program if it's unpaid
     public static void twentyThousandsMethod(){}
