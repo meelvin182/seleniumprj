@@ -2,11 +2,18 @@ package ru.sokolov;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.pages.AbstractPage;
 import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.RequestOverviewPage;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,10 +27,11 @@ public final class CoreKernelSupaClazz {
 
     private static WebDriver driver;
     private static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
+    public static boolean driverLoaded = loadDriver();
+
 
     static {
         //TODO Make setProperty work properly both in jar and IDE
-        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         driver = new ChromeDriver();
         AbstractPage.setDriver(driver);
         requestsChecker = new Thread(new Runnable() {
@@ -64,6 +72,20 @@ public final class CoreKernelSupaClazz {
     public static void getRequests(RequestEntity entity) throws Exception{
         driver.navigate().to(MAIN_PAGE);
         AllRequestsPage.process(entity);
+    }
+
+    private static boolean loadDriver(){
+        try{
+            File temp = File.createTempFile("driver", ".exe");
+            temp.deleteOnExit();
+            InputStream in = RequestPopup.class.getResourceAsStream("/chromedriver.exe");
+            Files.copy(in, Paths.get(temp.toURI()), StandardCopyOption.REPLACE_EXISTING);
+            System.setProperty("webdriver.chrome.driver", temp.getAbsolutePath());
+            return true;
+        }catch(IOException e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     //TODO This one will close program if it's unpaid

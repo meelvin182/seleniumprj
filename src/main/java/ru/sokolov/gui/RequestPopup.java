@@ -16,12 +16,25 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.entities.RequestEntity;
+import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -127,7 +140,6 @@ public class RequestPopup {
                     pathField.getText(),
                     one.isSelected(),
                     two.isSelected());
-            System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
             try {
                 sendRequest(entity);
             } catch (Exception e){
@@ -158,8 +170,8 @@ public class RequestPopup {
         try {
             InputStream in = RequestPopup.class.getResourceAsStream("/regions.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            Scanner scanner = new Scanner(reader);       // create scanner to read
-            while (scanner.hasNextLine()) {  // while there is a next line
+            Scanner scanner = new Scanner(reader);
+            while (scanner.hasNextLine()) {
                 values.add(scanner.nextLine());
             }
         } catch (Exception e) {

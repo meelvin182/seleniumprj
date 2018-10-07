@@ -9,7 +9,7 @@ import ru.sokolov.model.entities.RequestEntity;
 public abstract class AbstractPage {
 
     protected static WebDriverWait driverWait;
-    protected static WebDriver driver;
+    public static WebDriver driver;
     protected static RequestEntity entity;
 
     public static void waitForPageLoad(WebDriver driver) {

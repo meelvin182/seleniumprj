@@ -1,7 +1,9 @@
 package ru.sokolov;
 
 
+import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.entities.RequestEntity;
+import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -20,6 +22,7 @@ public class Main {
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws Exception {
+        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));
@@ -34,7 +37,7 @@ public class Main {
         List<String> values = new ArrayList<>();
         try {
             InputStream in = Main.class.getResourceAsStream("/regions.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             Scanner scanner = new Scanner(reader);       // create scanner to read
             while (scanner.hasNextLine()) {  // while there is a next line
                 values.add(scanner.nextLine());

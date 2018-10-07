@@ -1,6 +1,7 @@
 package ru.sokolov.gui;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,8 +13,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.SentRequest;
+import ru.sokolov.model.pages.AbstractPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,9 @@ public class MainScreen extends Application {
         primaryStage.setTitle("slnmprj");
         primaryStage.setScene(scene);
         primaryStage.show();
+        if(CoreKernelSupaClazz.driverLoaded){
+            AbstractPage.driver.quit();
+        }
     }
 
     private List<TableColumn<SentRequest, String>> getColumns(){
