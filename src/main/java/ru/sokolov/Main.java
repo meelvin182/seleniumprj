@@ -3,6 +3,7 @@ package ru.sokolov;
 
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.entities.RequestEntity;
+import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.BufferedReader;
@@ -28,7 +29,10 @@ public class Main {
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
         entity.setGetChangeRightsInfo(true);
-        checkForProcessedRequests();
+        CoreKernelSupaClazz.saveRequestToJson(entity);
+        for(SentRequest request : CoreKernelSupaClazz.readAllRequests()){
+            System.out.println(request);
+        }
     }
 
     //CTRL CV TO TEST

@@ -1,9 +1,14 @@
 package ru.sokolov.model.entities;
 
 import javafx.beans.property.StringProperty;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openqa.selenium.WebElement;
 
-public class SentRequest {
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class SentRequest implements Serializable{
 
     private String requestNum;
     private String creationDate;
@@ -11,6 +16,15 @@ public class SentRequest {
     private boolean download;
 
     public SentRequest() {
+    }
+
+    public SentRequest(RequestEntity entity) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime currentDate = LocalDateTime.now();
+        this.requestNum = entity.getCadastreNums();
+        this.creationDate = dtf.format(currentDate);
+        this.status = "Отправлен";
+        this.download = false;
     }
 
     public String getRequestNum() {
@@ -43,5 +57,15 @@ public class SentRequest {
 
     public void setDownload(boolean download) {
         this.download = download;
+    }
+
+    @Override
+    public String toString() {
+        return "SentRequest{" +
+                "requestNum='" + requestNum + '\'' +
+                ", creationDate='" + creationDate + '\'' +
+                ", status='" + status + '\'' +
+                ", download=" + download +
+                '}';
     }
 }

@@ -1,10 +1,11 @@
 package ru.sokolov;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.RequestEntity;
-import ru.sokolov.model.pages.AbstractPage;
+import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.RequestOverviewPage;
 
@@ -12,9 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,16 +28,23 @@ public final class CoreKernelSupaClazz {
 
     private static final ReentrantLock checkrequestsLock = new ReentrantLock();
     private static Thread requestsChecker;
+    private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
 
     private static WebDriver driver;
     private static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
+    private static ObjectMapper mapper = new ObjectMapper();
     public static boolean driverLoaded = loadDriver();
 
 
     static {
         //TODO Make setProperty work properly both in jar and IDE
+        File file = new File(APPDATA_PATH);
+        if(!file.exists()){
+            file.mkdir();
+        }
+        File file1 = new File(APPDATA_PATH + "\\requests");
         driver = new ChromeDriver();
-        AbstractPage.setDriver(driver);
+        //AbstractPage.setDriver(driver);
         requestsChecker = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -86,6 +97,37 @@ public final class CoreKernelSupaClazz {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static SentRequest saveRequestToJson(RequestEntity entity) throws Exception{
+        SentRequest request = new SentRequest(entity);
+        StringBuilder builder = new StringBuilder();
+        String fileName = builder
+                .append("\\")
+                .append(request.getRequestNum())
+                .append("")
+                .append(request.getCreationDate())
+                .append(".json").toString()
+                .replaceAll("/", "_")
+                .replaceAll(" ", "_")
+                .replaceAll(":", "_");
+        String path = APPDATA_PATH + fileName;
+        File json = new File(path);
+        json.createNewFile();
+        mapper.writeValue(json, request);
+        return request;
+    }
+
+    public static List<SentRequest> readAllRequests() throws IOException{
+        List<File> filesInFolder = Files.walk(Paths.get(APPDATA_PATH))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .collect(Collectors.toList());
+        List<SentRequest> requests = new ArrayList<>();
+        for(File file : filesInFolder){
+            requests.add(mapper.readValue(file, SentRequest.class));
+        }
+        return requests;
     }
 
     //TODO This one will close program if it's unpaid
