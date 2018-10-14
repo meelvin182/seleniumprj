@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class LoginPage extends AbstractPage {
     private static final String TEXT_FIELD_CLASSNAME = "v-textfield";
     private static final String BUTTON_CLASSNAME = "normalButton";
 
-    public static void setPageData(RequestEntity entity) throws InterruptedException {
+    public static void setPageData(LoginEntity entity) throws InterruptedException {
         driverWait = new WebDriverWait(driver, 2000);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();

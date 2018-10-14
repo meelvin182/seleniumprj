@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.Arrays;
@@ -99,7 +100,7 @@ public class SecondPage extends LoginPage{
         openSearchParams();
     }
 
-    public static void openRequests(RequestEntity entity) throws Exception{
+    public static void openRequests(LoginEntity entity) throws Exception{
         driver.navigate().to(CoreKernelSupaClazz.MAIN_PAGE);
         waitForPageLoad(driver);
         LoginPage.setPageData(entity);

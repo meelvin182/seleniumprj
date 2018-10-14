@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class SentRequest implements Serializable{
+public class SentRequest implements Serializable, LoginEntity{
 
     private List<String> keyParts;
 

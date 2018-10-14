@@ -46,7 +46,7 @@ public class MainScreen extends Application {
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
             try {
-                AllRequestsPage.updateRequestsStatus(table.getItems());
+                CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
                 table.refresh();
             } catch (Exception e) {
                 System.out.println("Something went wrong during requests update");
@@ -123,7 +123,11 @@ public class MainScreen extends Application {
                                     SentRequest sentRequest = getTableView().getItems().get(getIndex());
                                     if (sentRequest.isDownload()) {
                                         btn.setOnAction(event -> {
-                                            //TODO Add some logic here
+                                            try {
+                                                CoreKernelSupaClazz.downloadRequest(sentRequest);
+                                            } catch (Exception e){
+                                                System.out.println(e);
+                                            }
                                         });
                                         setGraphic(btn);
                                         setText(null);

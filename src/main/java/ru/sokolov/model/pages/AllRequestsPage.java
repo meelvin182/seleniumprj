@@ -1,8 +1,10 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 
@@ -23,6 +25,7 @@ public class AllRequestsPage extends AbstractPage {
     private static final String SEARCH_BY_NUM_FIELD_CLASS_NAME = "v-textfield";
     private static final String UPDATE_BUTTON_CLASS_NAME = "v-button-caption";
     private static final String UPDATE_BUTTON_NAME = "Обновить";
+    private static final String DOWNLOAD_BUTTON_CLASS_NAME = "v-icon"; //For some reason this is class of downloadn button, not v-link
 
     private static WebElement update;
     private static List<WebElement> rows;
@@ -40,7 +43,7 @@ public class AllRequestsPage extends AbstractPage {
     }
 
     //TODO Create stub entity with key
-    public static void process (RequestEntity entity) throws Exception{
+    public static void process (LoginEntity entity) throws Exception{
         SecondPage.openRequests(entity);
         waitForPageLoad(driver);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
@@ -64,7 +67,7 @@ public class AllRequestsPage extends AbstractPage {
         return requests;
     }
 
-    public static List<SentRequest> updateRequestsStatus(List<SentRequest> requests) throws Exception{
+    public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
         Map<List<String>, List<SentRequest>> keysToRequestMap = new HashMap<>();
         for(SentRequest request : requests){
             List<String> keyParts = request.getKeyParts();
@@ -84,19 +87,28 @@ public class AllRequestsPage extends AbstractPage {
                 updateRequestStatus(request);
             }
         }
-        return requests;
     }
 
     public static void updateRequestStatus(SentRequest request) throws Exception{
+        WebElement element = getRequestWebElement(request);
+        String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
+        request.setStatus(status);
+        request.setDownload(READY_STATUS.equals(status));
+    }
+
+    public static void downloadRequest(SentRequest request) throws Exception{
+        process(request);
+        getRequestWebElement(request).findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
+        TimeUnit.SECONDS.sleep(2);
+    }
+
+    private static WebElement getRequestWebElement(SentRequest request) throws Exception{
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
         textField.sendKeys(request.getRequestNum());
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
         update.click();
         TimeUnit.MILLISECONDS.sleep(50);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
-        WebElement element = driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
-        String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
-        request.setStatus(status);
-        request.setDownload(READY_STATUS.equals(status));
+        return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
     }
 }

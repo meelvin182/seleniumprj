@@ -2,7 +2,7 @@ package ru.sokolov.model.entities;
 
 import java.util.List;
 
-public class RequestEntity {
+public class RequestEntity implements LoginEntity{
 
     private List<String> keyParts;
     private String cadastreNums;

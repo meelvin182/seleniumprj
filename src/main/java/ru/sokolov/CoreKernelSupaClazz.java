@@ -3,6 +3,7 @@ package ru.sokolov;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
@@ -20,7 +21,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
@@ -45,10 +48,6 @@ public final class CoreKernelSupaClazz {
             file.mkdir();
         }
         File file1 = new File(APPDATA_PATH + "\\requests");
-        if (driverLoaded) {
-            AbstractPage.setDriver(new ChromeDriver());
-            driver = AbstractPage.driver;
-        }
         requestsChecker = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -64,32 +63,80 @@ public final class CoreKernelSupaClazz {
         requestsChecker.setDaemon(true);
     }
 
+    //Unused atm
+    @Deprecated
     public static void checkForProcessedRequests() {
         checkrequestsLock.lock();
-        //Stub login entity
+        if (driverLoaded) {
+            AbstractPage.setDriver(new ChromeDriver());
+        }
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         try {
             getRequests(entity);
         } catch (Exception e) {
             System.out.println(e);
+            AbstractPage.driver.close();
         }
+        AbstractPage.driver.close();
         checkrequestsLock.unlock();
     }
 
     public static SentRequest sendRequest(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
+        if (driverLoaded) {
+            AbstractPage.setDriver(new ChromeDriver());
+            driver = AbstractPage.driver;
+        }
         driver.navigate().to(MAIN_PAGE);
         RequestOverviewPage.sendRequest(entity);
         SentRequest request = new SentRequest(entity);
         request.setRequestNum(SentSuccesfullyPage.getRequestNum());
+        driver.close();
         checkrequestsLock.unlock();
         return saveRequestToJson(request);
     }
 
     public static void getRequests(RequestEntity entity) throws Exception {
-        driver.navigate().to(MAIN_PAGE);
+        checkrequestsLock.lock();
+        if (driverLoaded) {
+            AbstractPage.setDriver(new ChromeDriver());
+        }
+        AbstractPage.driver.navigate().to(MAIN_PAGE);
         AllRequestsPage.process(entity);
+        AbstractPage.driver.close();
+        checkrequestsLock.unlock();
+    }
+
+    public static void downloadRequest(SentRequest request) throws Exception
+    {
+        checkrequestsLock.lock();
+        if (driverLoaded) {
+            ChromeOptions chromeOptions = new ChromeOptions();
+            Map<String, Object> preferences = new Hashtable<String, Object>();
+            preferences.put("profile.default_content_settings.popups", 0);
+            preferences.put("download.prompt_for_download", "false");
+            preferences.put("download.default_directory", request.getPath());
+
+            chromeOptions.setExperimentalOption("prefs", preferences);
+            WebDriver driver = new ChromeDriver(chromeOptions);
+            AbstractPage.setDriver(driver);
+        }
+        AbstractPage.driver.navigate().to(MAIN_PAGE);
+        AllRequestsPage.downloadRequest(request);
+        AbstractPage.driver.close();
+        checkrequestsLock.unlock();
+    }
+
+    public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
+        checkrequestsLock.lock();
+        if (driverLoaded) {
+            AbstractPage.setDriver(new ChromeDriver());
+        }
+        AbstractPage.driver.navigate().to(MAIN_PAGE);
+        AllRequestsPage.updateRequestsStatus(requests);
+        AbstractPage.driver.close();
+        checkrequestsLock.unlock();
     }
 
     private static boolean loadDriver() {
@@ -124,6 +171,8 @@ public final class CoreKernelSupaClazz {
         return request;
     }
 
+    //Unused atm
+    @Deprecated
     public static List<SentRequest> readAllRequests() throws IOException {
         List<File> filesInFolder = Files.walk(Paths.get(APPDATA_PATH))
                 .filter(Files::isRegularFile)
