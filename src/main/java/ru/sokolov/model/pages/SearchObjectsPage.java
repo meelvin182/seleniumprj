@@ -7,6 +7,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class SearchObjectsPage extends AbstractPage {
 
@@ -103,6 +104,7 @@ public class SearchObjectsPage extends AbstractPage {
     public static void sendRequest(RequestEntity entity) throws Exception{
         SecondPage.search(entity);
         setPageData(entity);
+        TimeUnit.MILLISECONDS.sleep(300);
         pushFind();
     }
 

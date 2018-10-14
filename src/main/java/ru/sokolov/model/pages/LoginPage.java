@@ -31,10 +31,9 @@ public class LoginPage extends AbstractPage {
             //Unavoidable hack here, sometime random fields are skipped for unknown reason
             TimeUnit.MILLISECONDS.sleep(400);
         }
-
     }
 
     public static void login(){
-        driver.findElement(By.className("normalButton")).click();
+        driver.findElement(By.className(BUTTON_CLASSNAME)).click();
     }
 }

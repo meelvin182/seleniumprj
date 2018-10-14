@@ -3,6 +3,7 @@ package ru.sokolov.model.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.Arrays;
@@ -99,6 +100,8 @@ public class SecondPage extends LoginPage{
     }
 
     public static void openRequests(RequestEntity entity) throws Exception{
+        driver.navigate().to(CoreKernelSupaClazz.MAIN_PAGE);
+        waitForPageLoad(driver);
         LoginPage.setPageData(entity);
         LoginPage.login();
         waitForPageLoad(driver);

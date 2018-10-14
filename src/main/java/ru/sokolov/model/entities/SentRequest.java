@@ -7,13 +7,17 @@ import org.openqa.selenium.WebElement;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class SentRequest implements Serializable{
+
+    private List<String> keyParts;
 
     private String requestNum;
     private String creationDate;
     private String status;
     private boolean download;
+    private String path;
 
     public SentRequest() {
     }
@@ -21,10 +25,11 @@ public class SentRequest implements Serializable{
     public SentRequest(RequestEntity entity) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime currentDate = LocalDateTime.now();
-        this.requestNum = entity.getCadastreNums();
         this.creationDate = dtf.format(currentDate);
         this.status = "Отправлен";
         this.download = false;
+        this.path = entity.getFilePath();
+        this.keyParts = entity.getKeyParts();
     }
 
     public String getRequestNum() {
@@ -57,6 +62,22 @@ public class SentRequest implements Serializable{
 
     public void setDownload(boolean download) {
         this.download = download;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public List<String> getKeyParts() {
+        return keyParts;
+    }
+
+    public void setKeyParts(List<String> keyParts) {
+        this.keyParts = keyParts;
     }
 
     @Override

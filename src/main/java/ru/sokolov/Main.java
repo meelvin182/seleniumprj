@@ -1,10 +1,12 @@
 package ru.sokolov;
 
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.pages.AbstractPage;
+import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -23,15 +25,14 @@ public class Main {
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
+        //System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));
         entity.setCadastreNums("50:27:0040215:179");
         entity.setGetChangeRightsInfo(true);
-        CoreKernelSupaClazz.saveRequestToJson(entity);
-        for(SentRequest request : CoreKernelSupaClazz.readAllRequests()){
-            System.out.println(request);
+        if (CoreKernelSupaClazz.driverLoaded) {
+            CoreKernelSupaClazz.sendRequest(entity);
         }
     }
 

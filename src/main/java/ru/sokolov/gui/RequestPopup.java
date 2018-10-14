@@ -53,6 +53,9 @@ public class RequestPopup {
             .collect(Collectors.toList());
     public static List<String> ruzkeRegions = loadRegions();
 
+    private static final String SEND = "Отправить";
+    private static final String SENDING = "Запрос отправляется...";
+
     public RequestPopup(Stage parent) {
 
         StackPane layout = new StackPane();
@@ -141,13 +144,16 @@ public class RequestPopup {
                     one.isSelected(),
                     two.isSelected());
             try {
-                sendRequest(entity);
-            } catch (Exception e){
+                sendButton.setText(SENDING);
+                MainScreen.table.getItems().add(sendRequest(entity));
+                sendButton.setText(SEND);
+            } catch (Exception e) {
+                sendButton.setText(SEND);
                 System.out.println(e);
             }
         });
 
-        sendButton.setText("Отправить");
+        sendButton.setText(SEND);
         bottom.getChildren().addAll(sendButton);
         bottom.setAlignment(Pos.BOTTOM_CENTER);
         //KONEC SEND MATON
