@@ -44,14 +44,12 @@ public class MainScreen extends Application {
         HBox buttons = new HBox();
         Button testButton = new TestButton(primaryStage);
         Button updateRequestsButton = new Button();
-        updateRequestsButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    AllRequestsPage.updateRequestsStatus(table.getItems());
-                } catch (Exception e) {
-                    System.out.println("Something went wrong during requests update");
-                }
+        updateRequestsButton.setOnAction(event -> {
+            try {
+                AllRequestsPage.updateRequestsStatus(table.getItems());
+                table.refresh();
+            } catch (Exception e) {
+                System.out.println("Something went wrong during requests update");
             }
         });
         updateRequestsButton.setText("Обновить статус запросов");

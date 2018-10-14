@@ -81,13 +81,13 @@ public class AllRequestsPage extends AbstractPage {
             loginEntity.setKeyParts(entry.getKey());
             process(loginEntity);
             for(SentRequest request : entry.getValue()){
-                request = updateRequestStatus(request);
+                updateRequestStatus(request);
             }
         }
         return requests;
     }
 
-    public static SentRequest updateRequestStatus(SentRequest request) throws Exception{
+    public static void updateRequestStatus(SentRequest request) throws Exception{
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
         textField.sendKeys(request.getRequestNum());
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
@@ -98,7 +98,5 @@ public class AllRequestsPage extends AbstractPage {
         String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
-        System.out.println(request);
-        return request;
     }
 }
