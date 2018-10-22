@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -75,7 +76,7 @@ public final class CoreKernelSupaClazz {
     @Deprecated
     public static void checkForProcessedRequests() {
         checkrequestsLock.lock();
-        initDriver();
+        initDriver(null);
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         try {
@@ -89,7 +90,7 @@ public final class CoreKernelSupaClazz {
 
     public static SentRequest sendRequest(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
-        initDriver();
+        initDriver(null);
         driver.navigate().to(MAIN_PAGE);
         RequestOverviewPage.sendRequest(entity);
         SentRequest request = new SentRequest(entity);
@@ -101,7 +102,7 @@ public final class CoreKernelSupaClazz {
 
     public static void getRequests(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
-        initDriver();
+        initDriver(null);
         try{
             AbstractPage.driver.navigate().to(MAIN_PAGE);
             AllRequestsPage.process(entity);
@@ -118,30 +119,31 @@ public final class CoreKernelSupaClazz {
         checkrequestsLock.lock();
         String downloadDir = APPDATA_TMP_PATH + "\\" + request.getRequestNum();
         File tmpDir = null;
-        if (driverLoaded) {
-            tmpDir = new File(downloadDir);
-            if(!tmpDir.exists()){
-                tmpDir.mkdir();
-            }
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--headless");
-            Map<String, Object> preferences = new Hashtable<String, Object>();
-            preferences.put("profile.default_content_settings.popups", 0);
-            preferences.put("download.prompt_for_download", "false");
-            preferences.put("download.default_directory", tmpDir.getPath());
-
-            chromeOptions.setExperimentalOption("prefs", preferences);
-            WebDriver driver = new ChromeDriver(chromeOptions);
-            AbstractPage.setDriver(driver);
+        tmpDir = new File(downloadDir);
+        if(!tmpDir.exists()){
+            tmpDir.mkdir();
         }
-        AbstractPage.driver.navigate().to(MAIN_PAGE);
-        AllRequestsPage.downloadRequest(request);
-        AbstractPage.driver.close();
-        ZipFile zipFile = new ZipFile(getFilesInDir(downloadDir).get(0).getPath());
-        File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), downloadDir);
-        unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName(), request.getPath());
-        FileUtils.deleteDirectory(tmpDir);
-        checkrequestsLock.unlock();
+        Map<String, Object> preferences = new Hashtable<String, Object>();
+        preferences.put("profile.default_content_settings.popups", 0);
+        preferences.put("download.prompt_for_download", "false");
+        preferences.put("download.default_directory", tmpDir.getPath());
+        initDriver(preferences);
+
+        try {
+            AbstractPage.driver.navigate().to(MAIN_PAGE);
+            AllRequestsPage.downloadRequest(request);
+            TimeUnit.SECONDS.sleep(2);
+            AbstractPage.driver.close();
+
+            ZipFile zipFile = new ZipFile(getFilesInDir(downloadDir).get(0).getPath());
+            File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), downloadDir);
+            unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
+            FileUtils.deleteDirectory(tmpDir);
+        } catch (Exception e){
+            throw e;
+        } finally {
+            checkrequestsLock.unlock();
+        }
     }
 
     private static File unzipSpecificExtension(String ext, ZipFile zipFile, String name, String folder) throws IOException {
@@ -153,6 +155,9 @@ public final class CoreKernelSupaClazz {
                 InputStream in = zipFile.getInputStream(entry);
                 OutputStream outputStream = new FileOutputStream(tmpFile);
                 IOUtils.copy(in, outputStream);
+                zipFile.close();
+                outputStream.close();
+                in.close();
                 return tmpFile;
             }
         }
@@ -161,7 +166,7 @@ public final class CoreKernelSupaClazz {
 
     public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
         checkrequestsLock.lock();
-        initDriver();
+        initDriver(null);
         try {
             AbstractPage.driver.navigate().to(MAIN_PAGE);
             AllRequestsPage.updateRequestsStatus(requests);
@@ -192,7 +197,7 @@ public final class CoreKernelSupaClazz {
         String fileName = builder
                 .append("\\")
                 .append(request.getRequestNum())
-                .append("")
+                .append("_")
                 .append(request.getCreationDate())
                 .append(".json").toString()
                 .replaceAll("/", "_")
@@ -205,8 +210,6 @@ public final class CoreKernelSupaClazz {
         return request;
     }
 
-    //Unused atm
-    @Deprecated
     public static List<SentRequest> readAllRequests() throws IOException {
         List<SentRequest> requests = new ArrayList<>();
         for (File file : getFilesInDir(APPDATA_PATH)) {
@@ -222,16 +225,19 @@ public final class CoreKernelSupaClazz {
                 .collect(Collectors.toList());
     }
 
-    private static void initDriver(){
+    private static void initDriver(Map<String, Object> preferences){
         if (driverLoaded) {
             ChromeOptions chromeOptions = new ChromeOptions();
-            //chromeOptions.addArguments("--headless");
+            chromeOptions.addArguments("--headless");
+            if(preferences != null){
+                chromeOptions.setExperimentalOption("prefs", preferences);
+            }
             WebDriver webDriver = new ChromeDriver(chromeOptions);
             driver = webDriver;
             AbstractPage.setDriver(webDriver);
         } else {
             driverLoaded = loadDriver();
-            initDriver();
+            initDriver(preferences);
         }
     }
 

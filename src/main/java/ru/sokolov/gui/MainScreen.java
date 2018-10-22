@@ -30,6 +30,11 @@ public class MainScreen extends Application {
 
     private static int width = 1920 / 2;
     private static int height = 1080 / 2;
+    private static final String UPDATE_STATUSES_BUTTON_NAME = "Обновить статус запросов";
+    private static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
+    private static final String DOWNLOADED_STATUS = "Скачано";
+    private static final String DOWNLOADING_STATUS = "Скачивается...";
+    private static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
 
     public static final TableView<SentRequest> table = new TableView<>();
 
@@ -39,7 +44,7 @@ public class MainScreen extends Application {
         try {
             table.getItems().addAll(CoreKernelSupaClazz.readAllRequests());
         } catch (IOException e) {
-            System.out.println("COULDN'T LOAD REQUESTS");
+            e.printStackTrace(System.out);
         }
         HBox buttons = new HBox();
         Button testButton = new TestButton(primaryStage);
@@ -48,13 +53,13 @@ public class MainScreen extends Application {
             new Thread(() -> {
                 try {
                     CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
+                    table.refresh();
                 } catch (Exception e) {
                     e.printStackTrace(System.out);
                 }
             }).start();
-            table.refresh();
         });
-        updateRequestsButton.setText("Обновить статус запросов");
+        updateRequestsButton.setText(UPDATE_STATUSES_BUTTON_NAME);
         buttons.getChildren().addAll(testButton, updateRequestsButton);
 
         StackPane layout = new StackPane();
@@ -69,14 +74,14 @@ public class MainScreen extends Application {
 
         Scene scene = new Scene(vbox, width, height);
 
-        primaryStage.setTitle("ЕГРН Запросы");
+        primaryStage.setTitle(WINDOW_TITLE_NAME);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
             for (SentRequest request : table.getItems()) {
                 try {
                     CoreKernelSupaClazz.saveRequestToJson(request);
                 } catch (Exception e) {
-                    System.out.println("COULDN'T SAVE REQUEST");
+                    e.printStackTrace(System.out);
                 }
             }
         });
@@ -104,9 +109,7 @@ public class MainScreen extends Application {
                     @Override
                     public TableCell call(final TableColumn<SentRequest, String> param) {
                         final TableCell<SentRequest, String> cell = new TableCell<SentRequest, String>() {
-
                             final Button btn = new Button("Скачать");
-
                             @Override
                             public void updateItem(String item, boolean empty) {
                                 super.updateItem(item, empty);
@@ -117,11 +120,19 @@ public class MainScreen extends Application {
                                     SentRequest sentRequest = getTableView().getItems().get(getIndex());
                                     if (sentRequest.isDownload()) {
                                         btn.setOnAction(event -> {
-                                            try {
-                                                CoreKernelSupaClazz.downloadRequest(sentRequest);
-                                            } catch (Exception e) {
-                                                System.out.println(e);
-                                            }
+                                            new Thread(() -> {
+                                                sentRequest.setStatus(DOWNLOADING_STATUS);
+                                                table.refresh();
+                                                try {
+                                                    CoreKernelSupaClazz.downloadRequest(sentRequest);
+                                                    sentRequest.setStatus(DOWNLOADED_STATUS);
+                                                    table.refresh();
+                                                } catch (Exception e){
+                                                    sentRequest.setStatus(DOWNLOAD_FAILED_STATUS);
+                                                    table.refresh();
+                                                    e.printStackTrace(System.out);
+                                                }
+                                            }).start();
                                         });
                                         setGraphic(btn);
                                         setText(null);

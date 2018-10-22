@@ -46,15 +46,12 @@ import static ru.sokolov.CoreKernelSupaClazz.sendRequest;
 
 public class RequestPopup {
 
-    private static int width = 800;
-    private static int height = 600;
     private List<TextField> fields = Stream.generate(TextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
     public static List<String> ruzkeRegions = loadRegions();
 
     private static final String SEND = "Отправить";
-    private static final String SENDING = "Запрос отправляется...";
 
     public RequestPopup(Stage parent) {
 
@@ -66,8 +63,6 @@ public class RequestPopup {
         vbox.setSpacing(5);//Set vbox spacing
         vbox.setAlignment(Pos.CENTER_LEFT);
 
-
-        //Nachalo mata
         HBox key = new HBox();
         key.getChildren().add(new Text("Ключ доступа"));
         fields.forEach(textField -> {
@@ -91,20 +86,14 @@ public class RequestPopup {
         key.getChildren().remove(key.getChildren().size() - 1);
         key.setSpacing(10);
         key.setPrefWidth(200);
-        //Konec mata
 
-        //KADASTROVIE NUMS LIST
         TextField nums = new TextField();
         nums.setPromptText("Кадастровый номер");
-        //LIST END
 
-        //PADAT' VNIZ SPISOK
         ComboBox box = new ComboBox();
         box.getItems().addAll(ruzkeRegions);
         box.setPromptText("Выбрать регион");
-        //PADAT' VNIZ SPISOK KONEC
 
-        //Failochooser
         HBox path = new HBox();
         path.setSpacing(10);
         path.setPrefWidth(200);
@@ -121,18 +110,14 @@ public class RequestPopup {
         });
         path.getChildren().add(pathField);
         path.getChildren().add(button);
-        //END FAILOCHOOSER
 
-        //REQUEST SHTO TO TAM CHECKBOX
         ToggleGroup toggleGroup = new ToggleGroup();
         RadioButton one = new RadioButton("Запросить сведения об объекте");
         RadioButton two = new RadioButton("Запросить сведения о переходе прав на объект");
         one.setToggleGroup(toggleGroup);
         two.setToggleGroup(toggleGroup);
         toggleGroup.selectToggle(one);
-        //GET VALUE ETO .ISSELECTED
 
-        //SEND BUTTON
         HBox bottom = new HBox();
         Button sendButton = new Button();
         sendButton.setOnAction(event -> {
@@ -153,7 +138,6 @@ public class RequestPopup {
         sendButton.setText(SEND);
         bottom.getChildren().addAll(sendButton);
         bottom.setAlignment(Pos.BOTTOM_CENTER);
-        //KONEC SEND MATON
 
         vbox.getChildren().addAll(key, nums, box, path, one, two, bottom);
         layout.getChildren().add(vbox);
