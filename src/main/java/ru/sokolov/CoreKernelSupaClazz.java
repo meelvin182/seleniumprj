@@ -1,6 +1,8 @@
 package ru.sokolov;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -13,14 +15,17 @@ import ru.sokolov.model.pages.RequestOverviewPage;
 import ru.sokolov.model.pages.SentSuccesfullyPage;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +33,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public final class CoreKernelSupaClazz {
 
     private static final ReentrantLock checkrequestsLock = new ReentrantLock();
     private static Thread requestsChecker;
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
+    private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
 
     private static WebDriver driver;
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
@@ -67,16 +75,13 @@ public final class CoreKernelSupaClazz {
     @Deprecated
     public static void checkForProcessedRequests() {
         checkrequestsLock.lock();
-        if (driverLoaded) {
-            AbstractPage.setDriver(new ChromeDriver());
-        }
+        initDriver();
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
         try {
             getRequests(entity);
         } catch (Exception e) {
-            System.out.println(e);
-            AbstractPage.driver.close();
+            e.printStackTrace(System.out);
         }
         AbstractPage.driver.close();
         checkrequestsLock.unlock();
@@ -84,10 +89,7 @@ public final class CoreKernelSupaClazz {
 
     public static SentRequest sendRequest(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
-        if (driverLoaded) {
-            AbstractPage.setDriver(new ChromeDriver());
-            driver = AbstractPage.driver;
-        }
+        initDriver();
         driver.navigate().to(MAIN_PAGE);
         RequestOverviewPage.sendRequest(entity);
         SentRequest request = new SentRequest(entity);
@@ -99,24 +101,34 @@ public final class CoreKernelSupaClazz {
 
     public static void getRequests(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
-        if (driverLoaded) {
-            AbstractPage.setDriver(new ChromeDriver());
+        initDriver();
+        try{
+            AbstractPage.driver.navigate().to(MAIN_PAGE);
+            AllRequestsPage.process(entity);
+        } catch (Exception e){
+            e.printStackTrace(System.out);
+        } finally {
+            AbstractPage.driver.close();
+            checkrequestsLock.unlock();
         }
-        AbstractPage.driver.navigate().to(MAIN_PAGE);
-        AllRequestsPage.process(entity);
-        AbstractPage.driver.close();
-        checkrequestsLock.unlock();
     }
 
     public static void downloadRequest(SentRequest request) throws Exception
     {
         checkrequestsLock.lock();
+        String downloadDir = APPDATA_TMP_PATH + "\\" + request.getRequestNum();
+        File tmpDir = null;
         if (driverLoaded) {
+            tmpDir = new File(downloadDir);
+            if(!tmpDir.exists()){
+                tmpDir.mkdir();
+            }
             ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.addArguments("--headless");
             Map<String, Object> preferences = new Hashtable<String, Object>();
             preferences.put("profile.default_content_settings.popups", 0);
             preferences.put("download.prompt_for_download", "false");
-            preferences.put("download.default_directory", request.getPath());
+            preferences.put("download.default_directory", tmpDir.getPath());
 
             chromeOptions.setExperimentalOption("prefs", preferences);
             WebDriver driver = new ChromeDriver(chromeOptions);
@@ -125,18 +137,40 @@ public final class CoreKernelSupaClazz {
         AbstractPage.driver.navigate().to(MAIN_PAGE);
         AllRequestsPage.downloadRequest(request);
         AbstractPage.driver.close();
+        ZipFile zipFile = new ZipFile(getFilesInDir(downloadDir).get(0).getPath());
+        File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), downloadDir);
+        unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName(), request.getPath());
+        FileUtils.deleteDirectory(tmpDir);
         checkrequestsLock.unlock();
+    }
+
+    private static File unzipSpecificExtension(String ext, ZipFile zipFile, String name, String folder) throws IOException {
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()){
+            ZipEntry entry = entries.nextElement();
+            if(ext.equals(entry.getName().substring(entry.getName().length() - ext.length()))){
+                File tmpFile = new File(folder + "\\" + name +"." + ext);
+                InputStream in = zipFile.getInputStream(entry);
+                OutputStream outputStream = new FileOutputStream(tmpFile);
+                IOUtils.copy(in, outputStream);
+                return tmpFile;
+            }
+        }
+        return null;
     }
 
     public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
         checkrequestsLock.lock();
-        if (driverLoaded) {
-            AbstractPage.setDriver(new ChromeDriver());
+        initDriver();
+        try {
+            AbstractPage.driver.navigate().to(MAIN_PAGE);
+            AllRequestsPage.updateRequestsStatus(requests);
+        } catch (Exception e){
+            e.printStackTrace(System.out);
+        } finally {
+            AbstractPage.driver.close();
+            checkrequestsLock.unlock();
         }
-        AbstractPage.driver.navigate().to(MAIN_PAGE);
-        AllRequestsPage.updateRequestsStatus(requests);
-        AbstractPage.driver.close();
-        checkrequestsLock.unlock();
     }
 
     private static boolean loadDriver() {
@@ -174,15 +208,31 @@ public final class CoreKernelSupaClazz {
     //Unused atm
     @Deprecated
     public static List<SentRequest> readAllRequests() throws IOException {
-        List<File> filesInFolder = Files.walk(Paths.get(APPDATA_PATH))
-                .filter(Files::isRegularFile)
-                .map(Path::toFile)
-                .collect(Collectors.toList());
         List<SentRequest> requests = new ArrayList<>();
-        for (File file : filesInFolder) {
+        for (File file : getFilesInDir(APPDATA_PATH)) {
             requests.add(mapper.readValue(file, SentRequest.class));
         }
         return requests;
+    }
+
+    private static List<File> getFilesInDir(String dir) throws IOException{
+        return Files.walk(Paths.get(dir))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .collect(Collectors.toList());
+    }
+
+    private static void initDriver(){
+        if (driverLoaded) {
+            ChromeOptions chromeOptions = new ChromeOptions();
+            //chromeOptions.addArguments("--headless");
+            WebDriver webDriver = new ChromeDriver(chromeOptions);
+            driver = webDriver;
+            AbstractPage.setDriver(webDriver);
+        } else {
+            driverLoaded = loadDriver();
+            initDriver();
+        }
     }
 
     //TODO This one will close program if it's unpaid

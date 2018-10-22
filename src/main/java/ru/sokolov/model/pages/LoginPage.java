@@ -30,7 +30,7 @@ public class LoginPage extends AbstractPage {
             element.sendKeys(text);
             driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
             //Unavoidable hack here, sometime random fields are skipped for unknown reason
-            TimeUnit.MILLISECONDS.sleep(400);
+            TimeUnit.MILLISECONDS.sleep(500);
         }
     }
 

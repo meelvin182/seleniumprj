@@ -60,7 +60,7 @@ public class RequestPopup {
 
         StackPane layout = new StackPane();
         Stage stage = new Stage();
-        stage.setTitle("ENTER REQUEST SHIED PLEZ");
+        stage.setTitle("Введите данные запроса");
         stage.initOwner(parent);
         VBox vbox = new VBox();
         vbox.setSpacing(5);//Set vbox spacing
@@ -95,13 +95,13 @@ public class RequestPopup {
 
         //KADASTROVIE NUMS LIST
         TextField nums = new TextField();
-        nums.setPromptText("Enter cadastre nums");
+        nums.setPromptText("Кадастровый номер");
         //LIST END
 
         //PADAT' VNIZ SPISOK
         ComboBox box = new ComboBox();
         box.getItems().addAll(ruzkeRegions);
-        box.setPromptText("Select a region");
+        box.setPromptText("Выбрать регион");
         //PADAT' VNIZ SPISOK KONEC
 
         //Failochooser
@@ -144,12 +144,9 @@ public class RequestPopup {
                     one.isSelected(),
                     two.isSelected());
             try {
-                sendButton.setText(SENDING);
                 MainScreen.table.getItems().add(sendRequest(entity));
-                sendButton.setText(SEND);
             } catch (Exception e) {
-                sendButton.setText(SEND);
-                System.out.println(e);
+                e.printStackTrace(System.out);
             }
         });
 

@@ -14,7 +14,7 @@ public abstract class AbstractPage {
 
     public static void waitForPageLoad(WebDriver driver) {
         setDriver(driver);
-        driverWait = new WebDriverWait(driver, 2000);
+        driverWait = new WebDriverWait(driver, 180);
         Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
 
             @Override

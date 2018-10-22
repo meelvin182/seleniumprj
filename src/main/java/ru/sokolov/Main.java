@@ -1,12 +1,7 @@
 package ru.sokolov;
 
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import ru.sokolov.model.entities.RequestEntity;
-import ru.sokolov.model.entities.SentRequest;
-import ru.sokolov.model.pages.AbstractPage;
-import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -16,8 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-
-import static ru.sokolov.CoreKernelSupaClazz.checkForProcessedRequests;
 
 @Deprecated
 public class Main {

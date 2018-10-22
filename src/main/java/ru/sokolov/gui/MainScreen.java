@@ -45,12 +45,14 @@ public class MainScreen extends Application {
         Button testButton = new TestButton(primaryStage);
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
-            try {
-                CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
-                table.refresh();
-            } catch (Exception e) {
-                System.out.println("Something went wrong during requests update");
-            }
+            new Thread(() -> {
+                try {
+                    CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
+                } catch (Exception e) {
+                    e.printStackTrace(System.out);
+                }
+            }).start();
+            table.refresh();
         });
         updateRequestsButton.setText("Обновить статус запросов");
         buttons.getChildren().addAll(testButton, updateRequestsButton);
@@ -66,23 +68,15 @@ public class MainScreen extends Application {
         vbox.getChildren().addAll(layout, root);
 
         Scene scene = new Scene(vbox, width, height);
-        scene.setOnKeyPressed(event -> {
-            if (KeyCode.ESCAPE.equals(event.getCode())) {
-                System.exit(0);
-            }
-        });
 
-        primaryStage.setTitle("slnmprj");
+        primaryStage.setTitle("ЕГРН Запросы");
         primaryStage.setScene(scene);
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                for(SentRequest request : table.getItems()){
-                    try {
-                        CoreKernelSupaClazz.saveRequestToJson(request);
-                    } catch (Exception e){
-                        System.out.println("COULDN'T SAVE REQUEST");
-                    }
+        primaryStage.setOnCloseRequest(event -> {
+            for (SentRequest request : table.getItems()) {
+                try {
+                    CoreKernelSupaClazz.saveRequestToJson(request);
+                } catch (Exception e) {
+                    System.out.println("COULDN'T SAVE REQUEST");
                 }
             }
         });
@@ -100,7 +94,7 @@ public class MainScreen extends Application {
         TableColumn<SentRequest, String> status = new TableColumn<SentRequest, String>("Статус");
         status.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        TableColumn<SentRequest, String> folder = new TableColumn<SentRequest, String>("Папка сохранения");
+        TableColumn<SentRequest, String> folder = new TableColumn<SentRequest, String>("Путь сохранения");
         folder.setCellValueFactory(new PropertyValueFactory<>("path"));
 
 
@@ -125,7 +119,7 @@ public class MainScreen extends Application {
                                         btn.setOnAction(event -> {
                                             try {
                                                 CoreKernelSupaClazz.downloadRequest(sentRequest);
-                                            } catch (Exception e){
+                                            } catch (Exception e) {
                                                 System.out.println(e);
                                             }
                                         });

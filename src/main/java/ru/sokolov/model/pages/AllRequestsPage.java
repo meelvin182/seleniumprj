@@ -4,10 +4,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +27,7 @@ public class AllRequestsPage extends AbstractPage {
     private static final String SEARCH_BY_NUM_FIELD_CLASS_NAME = "v-textfield";
     private static final String UPDATE_BUTTON_CLASS_NAME = "v-button-caption";
     private static final String UPDATE_BUTTON_NAME = "Обновить";
-    private static final String DOWNLOAD_BUTTON_CLASS_NAME = "v-icon"; //For some reason this is class of downloadn button, not v-link
+    private static final String DOWNLOAD_BUTTON_CLASS_NAME = "v-icon"; //For some reason this is class of download button, not v-link
 
     private static WebElement update;
     private static List<WebElement> rows;
@@ -42,10 +44,8 @@ public class AllRequestsPage extends AbstractPage {
         rows.addAll(driver.findElements(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
     }
 
-    //TODO Create stub entity with key
     public static void process (LoginEntity entity) throws Exception{
         SecondPage.openRequests(entity);
-        waitForPageLoad(driver);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
         setPageData();
     }
@@ -83,6 +83,7 @@ public class AllRequestsPage extends AbstractPage {
             RequestEntity loginEntity = new RequestEntity();
             loginEntity.setKeyParts(entry.getKey());
             process(loginEntity);
+            driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
             for(SentRequest request : entry.getValue()){
                 updateRequestStatus(request);
             }
@@ -91,6 +92,7 @@ public class AllRequestsPage extends AbstractPage {
 
     public static void updateRequestStatus(SentRequest request) throws Exception{
         WebElement element = getRequestWebElement(request);
+        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(STATUS_CLASS_NAME)));
         String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
@@ -99,7 +101,7 @@ public class AllRequestsPage extends AbstractPage {
     public static void downloadRequest(SentRequest request) throws Exception{
         process(request);
         getRequestWebElement(request).findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(3);
     }
 
     private static WebElement getRequestWebElement(SentRequest request) throws Exception{
@@ -107,7 +109,7 @@ public class AllRequestsPage extends AbstractPage {
         textField.sendKeys(request.getRequestNum());
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
         update.click();
-        TimeUnit.MILLISECONDS.sleep(50);
+        TimeUnit.MILLISECONDS.sleep(500);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
         return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
     }
