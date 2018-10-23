@@ -18,7 +18,7 @@ public class LoginPage extends AbstractPage {
     private static final String BUTTON_CLASSNAME = "normalButton";
 
     public static void setPageData(LoginEntity entity) throws InterruptedException {
-        driverWait = new WebDriverWait(driver, 2000);
+        driverWait = new WebDriverWait(driver, 5);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
         while (list.size() != 5) {

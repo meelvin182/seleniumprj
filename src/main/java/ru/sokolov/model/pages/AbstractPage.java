@@ -14,15 +14,10 @@ public abstract class AbstractPage {
 
     public static void waitForPageLoad(WebDriver driver) {
         setDriver(driver);
-        driverWait = new WebDriverWait(driver, 180);
-        Predicate<WebDriver> pageLoaded = new Predicate<WebDriver>() {
-
-            @Override
-            public boolean apply(WebDriver input) {
-                return ((JavascriptExecutor) input).executeScript("return document.readyState").equals("complete");
-            }
-
-        };
+        if(driverWait == null) {
+            driverWait = new WebDriverWait(driver, 180);
+        }
+        Predicate<WebDriver> pageLoaded = input -> ((JavascriptExecutor) input).executeScript("return document.readyState").equals("complete");
         driverWait.until(pageLoaded);
     }
 

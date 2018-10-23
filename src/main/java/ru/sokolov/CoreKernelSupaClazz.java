@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import ru.sokolov.gui.MainScreen;
 import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
@@ -40,34 +41,36 @@ import java.util.zip.ZipFile;
 public final class CoreKernelSupaClazz {
 
     private static final ReentrantLock checkrequestsLock = new ReentrantLock();
-    private static Thread requestsChecker;
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
+    public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
+
     public static final String TEST_KEY = "f5939ffe-f955-421a-b30b-884a5c527803";
     public static final String TEST_CADASTRE_NUM = "50:27:0040215:179";
 
     private static WebDriver driver;
-    public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
     private static ObjectMapper mapper = new ObjectMapper();
-    public static boolean driverLoaded = loadDriver();
+    private static Thread requestsChecker;
 
+    public static boolean driverLoaded = loadDriver();
 
     static {
         File file = new File(APPDATA_PATH);
         if (!file.exists()) {
             file.mkdir();
         }
-        requestsChecker = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        checkForProcessedRequests();
+        requestsChecker = new Thread(() -> {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        updateRequestsStatus(MainScreen.table.getItems());
+                    } catch (Exception e){
+                        e.printStackTrace(System.out);
                     }
-                }, 0, 1000 * 60 * 30); //Once per 30 minutes
-            }
+                }
+            }, 0, 1000 * 60 * 30); //Once per 30 minutes
         });
         requestsChecker.setDaemon(true);
     }

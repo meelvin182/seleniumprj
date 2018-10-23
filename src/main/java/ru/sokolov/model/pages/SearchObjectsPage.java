@@ -27,7 +27,7 @@ public class SearchObjectsPage extends AbstractPage {
 
     public static void setPageData(RequestEntity entity) {
         waitForPageLoad(driver);
-        driverWait = new WebDriverWait(driver, 2000);
+        driverWait = new WebDriverWait(driver, 60);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(dropdownButtonClassName)));
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(findButtonClassName)));
         driver.findElements(By.className(findButtonClassName))

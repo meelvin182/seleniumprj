@@ -3,6 +3,7 @@ package ru.sokolov.model.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
@@ -95,6 +96,7 @@ public class SecondPage extends LoginPage{
     public static void search(RequestEntity entity) throws Exception{
         LoginPage.setPageData(entity);
         LoginPage.login();
+        driverWait = new WebDriverWait(driver, 60);
         waitForPageLoad(driver);
         setPageData();
         openSearchParams();
@@ -105,6 +107,7 @@ public class SecondPage extends LoginPage{
         waitForPageLoad(driver);
         LoginPage.setPageData(entity);
         LoginPage.login();
+        driverWait = new WebDriverWait(driver, 180);
         waitForPageLoad(driver);
         setPageData();
         openRequestsPage();
