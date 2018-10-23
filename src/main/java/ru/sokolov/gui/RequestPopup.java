@@ -1,6 +1,7 @@
 package ru.sokolov.gui;
 
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -122,7 +123,7 @@ public class RequestPopup {
 
         HBox bottom = new HBox();
         Button sendButton = new Button();
-        sendButton.setOnAction(event -> {
+        sendButton.setOnAction((ActionEvent event) -> {
             RequestEntity entity = new RequestEntity(
                     fields.stream().map(s -> s == null ? null : s.getText()).collect(Collectors.toList()),
                     nums == null ? null : nums.getText(),
@@ -131,14 +132,29 @@ public class RequestPopup {
                     one.isSelected(),
                     two.isSelected());
             try {
-                if(box.getValue() == null){
-                    box.setStyle("-fx-text-fill: red;");
-                    return;
-                }
-                keyText.setText(KEY);
+                boolean incorrectInput = false;
                 fields.forEach(t -> t.setStyle(null));
                 nums.setStyle(null);
                 box.setStyle(null);
+                keyText.setText(KEY);
+
+                if(box.getValue() == null){
+                    box.setStyle("-fx-background-color: #ff736e;");
+                    incorrectInput = true;
+                }
+                for (TextField field : fields) {
+                    if (field.getText().isEmpty() || !(field.getPromptText().length() == field.getText().length())) {
+                        field.setStyle("-fx-background-color: #ff736e;");
+                        incorrectInput = true;
+                    }
+                }
+                if(nums.getText().isEmpty()){
+                    nums.setStyle("-fx-background-color: #ff736e;");
+                    incorrectInput = true;
+                }
+                if(incorrectInput){
+                    return;
+                }
                 MainScreen.table.getItems().add(sendRequest(entity));
             } catch (Exception e) {
                 AbstractPage.driver.close();
