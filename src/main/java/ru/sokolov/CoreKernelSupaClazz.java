@@ -56,7 +56,6 @@ public final class CoreKernelSupaClazz {
         if (!file.exists()) {
             file.mkdir();
         }
-        File file1 = new File(APPDATA_PATH + "\\requests");
         requestsChecker = new Thread(new Runnable() {
             @Override
             public void run() {

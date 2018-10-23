@@ -1,8 +1,6 @@
 package ru.sokolov.gui;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,16 +8,13 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.SentRequest;
-import ru.sokolov.model.pages.AllRequestsPage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,15 +23,19 @@ import java.util.List;
 
 public class MainScreen extends Application {
 
-    private static int width = 1920 / 2;
-    private static int height = 1080 / 2;
+    private static final String SEND_REQUEST = "Отправить Запрос";
     private static final String UPDATE_STATUSES_BUTTON_NAME = "Обновить статус запросов";
     private static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
     private static final String DOWNLOADED_STATUS = "Скачано";
     private static final String DOWNLOADING_STATUS = "Скачивается...";
     private static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
+    private static final String UPDATING_STATUS_STATUS = "Статус обновляется";
 
     public static final TableView<SentRequest> table = new TableView<>();
+
+
+    private static int width = 1920 / 2;
+    private static int height = 1080 / 2;
 
     @Override
     public void start(Stage primaryStage) {
@@ -46,12 +45,20 @@ public class MainScreen extends Application {
         } catch (IOException e) {
             e.printStackTrace(System.out);
         }
+
         HBox buttons = new HBox();
-        Button testButton = new TestButton(primaryStage);
+        Button sendButton = new Button();
+        sendButton.setText(SEND_REQUEST);
+        sendButton.setOnAction(event -> {
+            RequestPopup requestPopup = new RequestPopup(primaryStage);
+        });
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
             new Thread(() -> {
                 try {
+                    List<SentRequest> items = table.getItems();
+                    items.forEach(request -> request.setStatus(UPDATING_STATUS_STATUS));
+                    table.refresh();
                     CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
                     table.refresh();
                 } catch (Exception e) {
@@ -60,7 +67,7 @@ public class MainScreen extends Application {
             }).start();
         });
         updateRequestsButton.setText(UPDATE_STATUSES_BUTTON_NAME);
-        buttons.getChildren().addAll(testButton, updateRequestsButton);
+        buttons.getChildren().addAll(sendButton, updateRequestsButton);
 
         StackPane layout = new StackPane();
         layout.getChildren().add(buttons);
