@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import static ru.sokolov.CoreKernelSupaClazz.TEST_CADASTRE_NUM;
+import static ru.sokolov.CoreKernelSupaClazz.TEST_KEY;
+
 @Deprecated
 public class Main {
 
@@ -20,9 +23,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         //System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
         RequestEntity entity = new RequestEntity();
-        entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
+        entity.setKeyParts(Arrays.stream(TEST_KEY.split("-")).collect(Collectors.toList()));
         entity.setRegion(regions.get(30));
-        entity.setCadastreNums("50:27:0040215:179");
+        entity.setCadastreNums(TEST_CADASTRE_NUM);
         entity.setGetChangeRightsInfo(true);
         if (CoreKernelSupaClazz.driverLoaded) {
             CoreKernelSupaClazz.sendRequest(entity);

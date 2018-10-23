@@ -43,6 +43,8 @@ public final class CoreKernelSupaClazz {
     private static Thread requestsChecker;
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
+    public static final String TEST_KEY = "f5939ffe-f955-421a-b30b-884a5c527803";
+    public static final String TEST_CADASTRE_NUM = "50:27:0040215:179";
 
     private static WebDriver driver;
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
@@ -51,7 +53,6 @@ public final class CoreKernelSupaClazz {
 
 
     static {
-        //TODO Make setProperty work properly both in jar and IDE
         File file = new File(APPDATA_PATH);
         if (!file.exists()) {
             file.mkdir();
@@ -77,7 +78,7 @@ public final class CoreKernelSupaClazz {
         checkrequestsLock.lock();
         initDriver(null);
         RequestEntity entity = new RequestEntity();
-        entity.setKeyParts(Arrays.stream("f5939ffe-f955-421a-b30b-884a5c527803".split("-")).collect(Collectors.toList()));
+        entity.setKeyParts(Arrays.stream(TEST_KEY.split("-")).collect(Collectors.toList()));
         try {
             getRequests(entity);
         } catch (Exception e) {

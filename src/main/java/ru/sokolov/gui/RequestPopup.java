@@ -42,7 +42,7 @@ public class RequestPopup {
     private static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
     private static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
 
-    private List<TextField> fields = Stream.generate(TextField::new).limit(5).collect(Collectors.toList());
+    public static List<TextField> fields = Stream.generate(KeyTextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
     public static List<String> ruzkeRegions = loadRegions();
