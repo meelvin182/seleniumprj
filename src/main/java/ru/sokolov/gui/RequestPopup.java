@@ -37,7 +37,7 @@ public class RequestPopup {
     private static final String KEY = "Ключ доступа";
     private static final String CADASTRE_NUM = "Кадастровый номер";
     private static final String CHOOSE_REGION = "Выбрать регион";
-    private static final String CHOOSE_FOLDER_PROMPT = "Choose folder";
+    private static final String CHOOSE_FOLDER_PROMPT = "Папка загрузки";
     private static final String FOLDER_SELECTOR_WINDOW_NAME = "Request save folder";
     private static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
     private static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
