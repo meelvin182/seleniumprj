@@ -5,7 +5,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.model.entities.LoginEntity;
-import ru.sokolov.model.entities.RequestEntity;
+import ru.sokolov.model.exceptions.CouldntLoginException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,16 +16,20 @@ public class LoginPage extends AbstractPage {
 
     private static final String TEXT_FIELD_CLASSNAME = "v-textfield";
     private static final String BUTTON_CLASSNAME = "normalButton";
+    private static final String ERROR = "v-Notification-error";
+
+    public static final String LOADING_INDICATOR_CLASSNAME = "v-loading-indicator";
+    public static final String LOADING_INDICATOR_WAIT_CLASSNAME = "v-loading-indicator-wait";
 
     public static void setPageData(LoginEntity entity) throws InterruptedException {
-        driverWait = new WebDriverWait(driver, 5);
+        driverWait = new WebDriverWait(driver, 10);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
         while (list.size() != 5) {
             list.addAll(driver.findElements(By.className("v-textfield")));
         }
         Iterator<String> iterator = entity.getKeyParts().iterator();
-        for(WebElement element : list){
+        for (WebElement element : list) {
             String text = iterator.next();
             element.sendKeys(text);
             driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
@@ -34,7 +38,20 @@ public class LoginPage extends AbstractPage {
         }
     }
 
-    public static void login(){
+    public static void login() throws Exception {
         driver.findElement(By.className(BUTTON_CLASSNAME)).click();
+        TimeUnit.MILLISECONDS.sleep(250);
+        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
+        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_CLASSNAME)));
+        TimeUnit.MILLISECONDS.sleep(250);
+        WebElement element;
+        try {
+            element = driver.findElement(By.className(ERROR));
+        } catch (Exception e) {
+            return;
+        }
+        if(element != null){
+            throw new CouldntLoginException();
+        }
     }
 }

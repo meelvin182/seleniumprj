@@ -40,7 +40,7 @@ import java.util.zip.ZipFile;
 
 public final class CoreKernelSupaClazz {
 
-    private static final ReentrantLock checkrequestsLock = new ReentrantLock();
+    public static final ReentrantLock checkrequestsLock = new ReentrantLock();
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
@@ -129,7 +129,9 @@ public final class CoreKernelSupaClazz {
         Map<String, Object> preferences = new Hashtable<String, Object>();
         preferences.put("profile.default_content_settings.popups", 0);
         preferences.put("download.prompt_for_download", "false");
-        preferences.put("download.default_directory", tmpDir.getPath());
+        if(request.getPath() != null) {
+            preferences.put("download.default_directory", tmpDir.getPath());
+        }
         initDriver(preferences);
 
         try {
@@ -231,7 +233,7 @@ public final class CoreKernelSupaClazz {
     private static void initDriver(Map<String, Object> preferences){
         if (driverLoaded) {
             ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--headless");
+            //chromeOptions.addArguments("--headless");
             if(preferences != null){
                 chromeOptions.setExperimentalOption("prefs", preferences);
             }

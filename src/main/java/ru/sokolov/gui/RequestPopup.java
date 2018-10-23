@@ -17,6 +17,9 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import ru.sokolov.model.entities.RequestEntity;
+import ru.sokolov.model.exceptions.CouldntLoginException;
+import ru.sokolov.model.exceptions.WrongCadastreNumException;
+import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,6 +32,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ru.sokolov.CoreKernelSupaClazz.checkrequestsLock;
 import static ru.sokolov.CoreKernelSupaClazz.sendRequest;
 
 public class RequestPopup {
@@ -41,6 +45,7 @@ public class RequestPopup {
     private static final String FOLDER_SELECTOR_WINDOW_NAME = "Request save folder";
     private static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
     private static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
+    private static final String COULDNT_LOGIN = "Проверьте ключ";
 
     public static List<TextField> fields = Stream.generate(KeyTextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
@@ -60,7 +65,8 @@ public class RequestPopup {
         vbox.setAlignment(Pos.CENTER_LEFT);
 
         HBox key = new HBox();
-        key.getChildren().add(new Text(KEY));
+        Text keyText = new Text(KEY);
+        key.getChildren().add(keyText);
         fields.forEach(textField -> {
             int index = fields.indexOf(textField);
             textField.setPromptText(fieldLenghts.get(index));
@@ -125,8 +131,24 @@ public class RequestPopup {
                     one.isSelected(),
                     two.isSelected());
             try {
+                if(box.getValue() == null){
+                    box.setStyle("-fx-text-fill: red;");
+                    return;
+                }
+                keyText.setText(KEY);
+                fields.forEach(t -> t.setStyle(null));
+                nums.setStyle(null);
+                box.setStyle(null);
                 MainScreen.table.getItems().add(sendRequest(entity));
             } catch (Exception e) {
+                AbstractPage.driver.close();
+                checkrequestsLock.unlock();
+                if(e instanceof CouldntLoginException){
+                    fields.forEach(textField -> textField.setStyle("-fx-text-fill: red;"));
+                    keyText.setText(COULDNT_LOGIN);
+                } else if(e instanceof WrongCadastreNumException){
+                    nums.setStyle("-fx-text-fill: red;");
+                }
                 e.printStackTrace(System.out);
             }
         });
