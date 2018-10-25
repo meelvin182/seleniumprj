@@ -5,6 +5,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.exceptions.WrongCadastreNumException;
 
+import java.util.concurrent.TimeUnit;
+
 public class RequestsPage extends AbstractPage {
 
     private static final String COULDNT_FIND_ERROR_CLASS_NAME = "gwt-HTML";
@@ -15,6 +17,7 @@ public class RequestsPage extends AbstractPage {
         SearchObjectsPage.sendRequest(entity);
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(FOUND_NOTIFICATION_CLASS_NAME)),
                 ExpectedConditions.presenceOfElementLocated(By.className(COULDNT_FIND_ERROR_CLASS_NAME))));
+        TimeUnit.MILLISECONDS.sleep(500);
         try {
             driver.findElement(By.className(FOUND_NOTIFICATION_CLASS_NAME));
         } catch (Exception e){
