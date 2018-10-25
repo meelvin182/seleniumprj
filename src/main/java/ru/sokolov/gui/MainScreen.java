@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.SentRequest;
+import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ public class MainScreen extends Application {
                     CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
                     table.refresh();
                 } catch (Exception e) {
+                    AbstractPage.driver.close();
+                    CoreKernelSupaClazz.checkrequestsLock.unlock();
                     e.printStackTrace(System.out);
                 }
             }).start();
