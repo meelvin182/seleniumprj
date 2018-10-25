@@ -12,6 +12,7 @@ public class RequestOverviewPage extends AbstractPage{
 
     public static void setPageData(RequestEntity entity){
         waitForPageLoad(driver);
+        System.out.println("Checking whick checkbox to check");
         if(entity.isGetChangeRightsInfo()){
             driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ REQUEST_RIGHTS_CHECKBOX +"')]")));
             driver.findElement(By.xpath("//*[contains(text(), '"+ REQUEST_RIGHTS_CHECKBOX +"')]")).click();
@@ -21,7 +22,9 @@ public class RequestOverviewPage extends AbstractPage{
     public static void sendRequest(RequestEntity entity) throws Exception{
         RequestsPage.continueToRequestOverview(entity);
         setPageData(entity);
+        System.out.println("Waiting for final send button");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")));
+        System.out.println("Sent.");
         driver.findElement(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")).click();
 
     }

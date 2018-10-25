@@ -46,6 +46,7 @@ public class AllRequestsPage extends AbstractPage {
 
     public static void process (LoginEntity entity) throws Exception{
         SecondPage.openRequests(entity);
+        System.out.println("My requests page opened");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
         setPageData();
     }
@@ -83,6 +84,7 @@ public class AllRequestsPage extends AbstractPage {
             RequestEntity loginEntity = new RequestEntity();
             loginEntity.setKeyParts(entry.getKey());
             process(loginEntity);
+            System.out.println("Updating requests with key: " + entry.getKey());
             driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
             for(SentRequest request : entry.getValue()){
                 updateRequestStatus(request);
@@ -91,15 +93,19 @@ public class AllRequestsPage extends AbstractPage {
     }
 
     public static void updateRequestStatus(SentRequest request) throws Exception{
+        System.out.println("Searching for request with num: " + request.getRequestNum());
         WebElement element = getRequestWebElement(request);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(STATUS_CLASS_NAME)));
+        System.out.println("Request found");
         String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
+        System.out.println("Old status: " + request.getStatus() + " New status: " + status);
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
     }
 
     public static void downloadRequest(SentRequest request) throws Exception{
         process(request);
+        System.out.println("Downloading request");
         getRequestWebElement(request).findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
         TimeUnit.SECONDS.sleep(3);
     }

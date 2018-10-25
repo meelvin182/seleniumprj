@@ -15,16 +15,17 @@ public class RequestsPage extends AbstractPage {
 
     public static void continueToRequestOverview(RequestEntity entity) throws Exception{
         SearchObjectsPage.sendRequest(entity);
+        System.out.println("Waiting for sent request notification");
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(FOUND_NOTIFICATION_CLASS_NAME)),
                 ExpectedConditions.presenceOfElementLocated(By.className(COULDNT_FIND_ERROR_CLASS_NAME))));
         TimeUnit.MILLISECONDS.sleep(500);
         try {
             driver.findElement(By.className(FOUND_NOTIFICATION_CLASS_NAME));
         } catch (Exception e){
+            System.out.println("Found nothing");
             throw new WrongCadastreNumException();
         }
-        System.out.println("Wait is over");
+        System.out.println("Opening request overview");
         driver.findElement(By.className(SEND_BUTTON_CLASS_NAME)).click();
-
     }
 }

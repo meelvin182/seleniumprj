@@ -1,5 +1,6 @@
 package ru.sokolov.model.pages;
 
+import jdk.nashorn.internal.runtime.regexp.joni.constants.TargetInfo;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -10,6 +11,7 @@ import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SecondPage extends LoginPage{
@@ -28,6 +30,7 @@ public class SecondPage extends LoginPage{
     public static void setPageData() {
         waitForPageLoad(driver);
         waitForButtonsLoaded();
+        System.out.println("Second page is loaded");
         for(WebElement element : driver.findElements(By.className(SECOND_PAGE_ELEMENTS_CLASS))){
             if(SEARCH_BUTTON_ELEMENT_NAME.equals(element.getText())){
                 setSearchButton(element);
@@ -39,6 +42,7 @@ public class SecondPage extends LoginPage{
                 setMyBillsButton(element);
             }
         }
+        System.out.println("Buttons found");
     }
 
     public static WebElement getSearchButton() {
@@ -99,6 +103,8 @@ public class SecondPage extends LoginPage{
         driverWait = new WebDriverWait(driver, 60);
         waitForPageLoad(driver);
         setPageData();
+        TimeUnit.SECONDS.sleep(1);
+        System.out.println("Opening request params");
         openSearchParams();
     }
 
@@ -110,6 +116,8 @@ public class SecondPage extends LoginPage{
         driverWait = new WebDriverWait(driver, 180);
         waitForPageLoad(driver);
         setPageData();
+        TimeUnit.SECONDS.sleep(1);
+        System.out.println("Openning My Requests Page");
         openRequestsPage();
     }
 }

@@ -35,8 +35,14 @@ public class SearchObjectsPage extends AbstractPage {
                     if (s.getText().equals("Найти")) findButton = s;
                 });
         setTextFieldElements();
+        System.out.println("Setting Cadastre Num");
         setCadastreNums(entity.getCadastreNums());
+        System.out.println("DONE");
+        System.out.println(" ");
+        System.out.println("Setting Region");
         setRegion(entity.getRegion());
+        System.out.println("DONE");
+        System.out.println(" ");
     }
 
     public static void setTextFieldElements() {
@@ -106,6 +112,7 @@ public class SearchObjectsPage extends AbstractPage {
         setPageData(entity);
         TimeUnit.MILLISECONDS.sleep(300);
         pushFind();
+        System.out.println("Request sent");
     }
 
 

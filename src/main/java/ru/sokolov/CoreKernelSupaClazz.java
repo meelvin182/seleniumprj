@@ -103,6 +103,7 @@ public final class CoreKernelSupaClazz {
         return saveRequestToJson(request);
     }
 
+    @Deprecated
     public static void getRequests(RequestEntity entity) throws Exception {
         checkrequestsLock.lock();
         initDriver(null);
