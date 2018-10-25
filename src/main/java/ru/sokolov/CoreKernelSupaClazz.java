@@ -233,7 +233,7 @@ public final class CoreKernelSupaClazz {
     private static void initDriver(Map<String, Object> preferences){
         if (driverLoaded) {
             ChromeOptions chromeOptions = new ChromeOptions();
-            //chromeOptions.addArguments("--headless");
+            chromeOptions.addArguments("--headless");
             if(preferences != null){
                 chromeOptions.setExperimentalOption("prefs", preferences);
             }

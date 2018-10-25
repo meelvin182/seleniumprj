@@ -1,10 +1,12 @@
 package ru.sokolov.gui;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
@@ -47,13 +49,13 @@ public class RequestPopup {
     private static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
     private static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
     private static final String COULDNT_LOGIN = "Проверьте ключ";
+    private static final String SENDING = "Отправляется";
+    private static final String SEND = "Отправить";
 
     public static List<TextField> fields = Stream.generate(KeyTextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
     public static List<String> ruzkeRegions = loadRegions();
-
-    private static final String SEND = "Отправить";
 
     public RequestPopup(Stage parent) {
 
@@ -121,6 +123,16 @@ public class RequestPopup {
         two.setToggleGroup(toggleGroup);
         toggleGroup.selectToggle(one);
 
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setHeaderText("Превышено время ожидания, попробуйте позже");
+        errorAlert.setTitle("Notification");
+
+        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+        successAlert.setHeaderText("Запрос отправлен");
+        successAlert.setTitle("Notification");
+
+
+
         HBox bottom = new HBox();
         Button sendButton = new Button();
         sendButton.setOnAction((ActionEvent event) -> {
@@ -131,42 +143,57 @@ public class RequestPopup {
                     pathField.getText(),
                     one.isSelected(),
                     two.isSelected());
-            try {
-                boolean incorrectInput = false;
-                fields.forEach(t -> t.setStyle(null));
-                nums.setStyle(null);
-                box.setStyle(null);
-                keyText.setText(KEY);
+            boolean incorrectInput = false;
+            fields.forEach(t -> t.setStyle(null));
+            nums.setStyle(null);
+            box.setStyle(null);
+            keyText.setText(KEY);
 
-                if(box.getValue() == null){
-                    box.setStyle("-fx-background-color: #ff736e;");
+            if (box.getValue() == null) {
+                box.setStyle("-fx-background-color: #ff736e;");
+                incorrectInput = true;
+            }
+            for (TextField field : fields) {
+                if (field.getText().isEmpty() || !(field.getPromptText().length() == field.getText().length())) {
+                    field.setStyle("-fx-background-color: #ff736e;");
                     incorrectInput = true;
                 }
-                for (TextField field : fields) {
-                    if (field.getText().isEmpty() || !(field.getPromptText().length() == field.getText().length())) {
-                        field.setStyle("-fx-background-color: #ff736e;");
-                        incorrectInput = true;
+            }
+            if (nums.getText().isEmpty()) {
+                nums.setStyle("-fx-background-color: #ff736e;");
+                incorrectInput = true;
+            }
+            if (incorrectInput) {
+                return;
+            }
+            sendButton.setText(SENDING);
+            sendButton.setDisable(true);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        MainScreen.table.getItems().add(sendRequest(entity));
+                        Platform.runLater(() -> successAlert.showAndWait());
+                    } catch (Exception e) {
+                        AbstractPage.driver.close();
+                        checkrequestsLock.unlock();
+                        if (e instanceof CouldntLoginException) {
+                            fields.forEach(textField -> textField.setStyle("-fx-text-fill: red;"));
+                            Platform.runLater(() -> keyText.setText(COULDNT_LOGIN));
+                        } else if (e instanceof WrongCadastreNumException) {
+                            nums.setStyle("-fx-text-fill: red;");
+                        } else {
+                            Platform.runLater(() -> errorAlert.showAndWait());
+                        }
+                        e.printStackTrace(System.out);
+                    } finally {
+                        Platform.runLater(() -> {
+                            sendButton.setText(SEND);
+                            sendButton.setDisable(false);
+                        });
                     }
                 }
-                if(nums.getText().isEmpty()){
-                    nums.setStyle("-fx-background-color: #ff736e;");
-                    incorrectInput = true;
-                }
-                if(incorrectInput){
-                    return;
-                }
-                MainScreen.table.getItems().add(sendRequest(entity));
-            } catch (Exception e) {
-                AbstractPage.driver.close();
-                checkrequestsLock.unlock();
-                if(e instanceof CouldntLoginException){
-                    fields.forEach(textField -> textField.setStyle("-fx-text-fill: red;"));
-                    keyText.setText(COULDNT_LOGIN);
-                } else if(e instanceof WrongCadastreNumException){
-                    nums.setStyle("-fx-text-fill: red;");
-                }
-                e.printStackTrace(System.out);
-            }
+            }).start();
         });
 
         sendButton.setText(SEND);
