@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static ru.sokolov.model.pages.SecondPage.MY_REQUESTS_BUTTON_ELEMENT_NAME;
+
 public class LoginPage extends AbstractPage {
 
     private static final String TEXT_FIELD_CLASSNAME = "v-textfield";
@@ -42,19 +44,8 @@ public class LoginPage extends AbstractPage {
 
     public static void login() throws Exception {
         driver.findElement(By.className(BUTTON_CLASSNAME)).click();
-        System.out.println("Waiting for white circle is gone");
-
-        driverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className(LOADING_INDICATOR_CLASSNAME)));
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_CLASSNAME)));
-
-        System.out.println("Waiting for yellow circle is gone");
-        driverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
-
-        System.out.println("Waiting for red circle is gone");
-        driverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
-
+        driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(ERROR)),
+                ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ MY_REQUESTS_BUTTON_ELEMENT_NAME +"')]"))));
         TimeUnit.MILLISECONDS.sleep(250);
         WebElement element;
         try {
