@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_DELAY_CLASSNAME;
+import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_WAIT_CLASSNAME;
+
 public class AllRequestsPage extends AbstractPage {
 
     private static final String ROW_ELEMENT_CLASS_NAME_EVEN = "v-table-row";
@@ -27,9 +30,11 @@ public class AllRequestsPage extends AbstractPage {
     private static final String SEARCH_BY_NUM_FIELD_CLASS_NAME = "v-textfield";
     private static final String UPDATE_BUTTON_CLASS_NAME = "v-button-caption";
     private static final String UPDATE_BUTTON_NAME = "Обновить";
+    private static final String REMOVE_FILTER_BUTTON_NAME = "Очистить фильтр";
     private static final String DOWNLOAD_BUTTON_CLASS_NAME = "v-icon"; //For some reason this is class of download button, not v-link
 
     private static WebElement update;
+    private static WebElement reset;
     private static List<WebElement> rows;
 
     public static void setPageData(){
@@ -37,7 +42,8 @@ public class AllRequestsPage extends AbstractPage {
         for (WebElement element : driver.findElements(By.className(UPDATE_BUTTON_CLASS_NAME))){
             if(UPDATE_BUTTON_NAME.equals(element.getText())){
                 update = element;
-                break;
+            } else if(REMOVE_FILTER_BUTTON_NAME.equals(element.getText())){
+                reset = element;
             }
         }
         rows = driver.findElements(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
@@ -46,8 +52,8 @@ public class AllRequestsPage extends AbstractPage {
 
     public static void process (LoginEntity entity) throws Exception{
         SecondPage.openRequests(entity);
-        System.out.println("My requests page opened");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
+        System.out.println("My requests page opened");
         setPageData();
     }
 
@@ -112,10 +118,16 @@ public class AllRequestsPage extends AbstractPage {
 
     private static WebElement getRequestWebElement(SentRequest request) throws Exception{
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
+        textField.clear();
+        TimeUnit.MILLISECONDS.sleep(250);
         textField.sendKeys(request.getRequestNum());
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
         update.click();
         TimeUnit.MILLISECONDS.sleep(500);
+        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
+        TimeUnit.MILLISECONDS.sleep(250);
+        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
+
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
         return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
     }
