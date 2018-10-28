@@ -21,15 +21,7 @@ public class Main {
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws Exception {
-        //System.setProperty("webdriver.chrome.driver", "src/resources/chromedriver.exe");
-        RequestEntity entity = new RequestEntity();
-        entity.setKeyParts(Arrays.stream(TEST_KEY.split("-")).collect(Collectors.toList()));
-        entity.setRegion(regions.get(30));
-        entity.setCadastreNums(TEST_CADASTRE_NUM);
-        entity.setGetChangeRightsInfo(true);
-        if (CoreKernelSupaClazz.driverLoaded) {
-            CoreKernelSupaClazz.sendRequest(entity);
-        }
+        System.out.println("50:27:0040215".substring(0,2));
     }
 
     //CTRL CV TO TEST

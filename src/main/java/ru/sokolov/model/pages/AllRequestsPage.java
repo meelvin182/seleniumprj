@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_DELAY_CLASSNAME;
 import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_WAIT_CLASSNAME;
+import static ru.sokolov.model.pages.SecondPage.MY_REQUESTS_BUTTON_ELEMENT_NAME;
 
 public class AllRequestsPage extends AbstractPage {
 
@@ -94,6 +96,7 @@ public class AllRequestsPage extends AbstractPage {
             driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
             for(SentRequest request : entry.getValue()){
                 updateRequestStatus(request);
+
             }
         }
     }
@@ -107,6 +110,15 @@ public class AllRequestsPage extends AbstractPage {
         System.out.println("Old status: " + request.getStatus() + " New status: " + status);
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
+        if(request.isDownload()){
+            downloadRequest(element);
+            CoreKernelSupaClazz.unzipDownloadedRequest(request);
+        }
+    }
+
+    public static void downloadRequest(WebElement element) throws Exception{
+        element.findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
+        TimeUnit.SECONDS.sleep(3);
     }
 
     public static void downloadRequest(SentRequest request) throws Exception{
@@ -127,8 +139,10 @@ public class AllRequestsPage extends AbstractPage {
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
         TimeUnit.MILLISECONDS.sleep(250);
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
+        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
 
-        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
+        driverWait.until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)),
+                ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]"))));
         return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
     }
 }

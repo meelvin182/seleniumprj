@@ -13,18 +13,22 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.commons.lang3.StringUtils;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.SentRequest;
-import ru.sokolov.model.pages.AbstractPage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
 
 
 public class MainScreen extends Application {
 
     private static final String SEND_REQUEST = "Отправить Запрос";
+    private static final String ENTER_KEY = "Ввести ключ";
     private static final String UPDATE_STATUSES_BUTTON_NAME = "Обновить статус запросов";
     private static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
     private static final String DOWNLOADED_STATUS = "Скачано";
@@ -40,9 +44,12 @@ public class MainScreen extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        CoreKernelSupaClazz.loadKey(KeyPopup.fields);
         table.getColumns().addAll(getColumns());
         try {
-            table.getItems().addAll(CoreKernelSupaClazz.readAllRequests());
+            table.getItems().addAll(!StringUtils.isEmpty(KeyPopup.fields.get(4).getText())
+                    ? CoreKernelSupaClazz.readAllRequests(KeyPopup.fields.stream().map(t -> t.getText()).collect(Collectors.toList()))
+                    : CoreKernelSupaClazz.readAllRequests());
         } catch (IOException e) {
             e.printStackTrace(System.out);
         }
@@ -53,24 +60,30 @@ public class MainScreen extends Application {
         sendButton.setOnAction(event -> {
             RequestPopup requestPopup = new RequestPopup(primaryStage);
         });
+
+        Button keyButton = new Button();
+        keyButton.setText(ENTER_KEY);
+        keyButton.setOnAction(event -> {
+            KeyPopup keyPopup = new KeyPopup(primaryStage);
+        });
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
             new Thread(() -> {
                 try {
-                    List<SentRequest> items = table.getItems();
-                    items.forEach(request -> request.setStatus(UPDATING_STATUS_STATUS));
+                    List<SentRequest> toUpdate = table.getItems().stream().filter(t -> !DOWNLOADED_STATUS.equals(t.getStatus())).collect(Collectors.toList());
+                    toUpdate.forEach(request -> request.setStatus(UPDATING_STATUS_STATUS));
                     table.refresh();
-                    CoreKernelSupaClazz.updateRequestsStatus(table.getItems());
+                    CoreKernelSupaClazz.updateRequestsStatus(toUpdate);
                     table.refresh();
                 } catch (Exception e) {
-                    AbstractPage.driver.close();
+                    closeDriver();;
                     CoreKernelSupaClazz.checkrequestsLock.unlock();
                     e.printStackTrace(System.out);
                 }
             }).start();
         });
         updateRequestsButton.setText(UPDATE_STATUSES_BUTTON_NAME);
-        buttons.getChildren().addAll(sendButton, updateRequestsButton);
+        buttons.getChildren().addAll(sendButton, updateRequestsButton, keyButton);
 
         StackPane layout = new StackPane();
         layout.getChildren().add(buttons);
@@ -94,6 +107,7 @@ public class MainScreen extends Application {
                     e.printStackTrace(System.out);
                 }
             }
+            CoreKernelSupaClazz.saveKey(KeyPopup.fields);
         });
         primaryStage.show();
     }

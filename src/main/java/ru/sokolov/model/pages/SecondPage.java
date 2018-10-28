@@ -97,9 +97,12 @@ public class SecondPage extends LoginPage{
         myRequestsButton.click();
     }
 
+    public static void openRhldr(){
+        setPageData();
+        rightHolderRequestButton.click();
+    }
+
     public static void search(RequestEntity entity) throws Exception{
-        LoginPage.setPageData(entity);
-        LoginPage.login();
         driverWait = new WebDriverWait(driver, 60);
         waitForPageLoad(driver);
         setPageData();
@@ -109,10 +112,7 @@ public class SecondPage extends LoginPage{
     }
 
     public static void openRequests(LoginEntity entity) throws Exception{
-        driver.navigate().to(CoreKernelSupaClazz.MAIN_PAGE);
         waitForPageLoad(driver);
-        LoginPage.setPageData(entity);
-        LoginPage.login();
         driverWait = new WebDriverWait(driver, 180);
         waitForPageLoad(driver);
         setPageData();
