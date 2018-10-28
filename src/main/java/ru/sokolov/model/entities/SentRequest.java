@@ -1,9 +1,5 @@
 package ru.sokolov.model.entities;
 
-import javafx.beans.property.StringProperty;
-import org.apache.commons.lang3.time.DateUtils;
-import org.openqa.selenium.WebElement;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

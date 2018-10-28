@@ -17,8 +17,7 @@ public abstract class AbstractPage {
         if(driverWait == null) {
             driverWait = new WebDriverWait(driver, 180);
         }
-        Predicate<WebDriver> pageLoaded = input -> ((JavascriptExecutor) input).executeScript("return document.readyState").equals("complete");
-        driverWait.until(pageLoaded);
+        driverWait.until(input -> ((JavascriptExecutor) input).executeScript("return document.readyState").equals("complete"));
     }
 
     public static void setDriverWait(WebDriverWait driverWait) {

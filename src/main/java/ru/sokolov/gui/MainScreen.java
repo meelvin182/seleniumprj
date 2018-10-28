@@ -1,9 +1,12 @@
 package ru.sokolov.gui;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -37,10 +40,18 @@ public class MainScreen extends Application {
     private static final String UPDATING_STATUS_STATUS = "Статус обновляется";
 
     public static final TableView<SentRequest> table = new TableView<>();
-
+    public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
 
     private static int width = 1920 / 2;
     private static int height = 1080 / 2;
+
+    static {
+        downloadFirefox.setTitle("No Firefox found");
+        downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
+        downloadFirefox.setOnCloseRequest(event -> {
+            System.exit(0);
+        });
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -66,6 +77,11 @@ public class MainScreen extends Application {
         keyButton.setOnAction(event -> {
             KeyPopup keyPopup = new KeyPopup(primaryStage);
         });
+
+        Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
+        downloadFirefox.setTitle("No Firefox found");
+        downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
+
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
             new Thread(() -> {
@@ -76,6 +92,7 @@ public class MainScreen extends Application {
                     CoreKernelSupaClazz.updateRequestsStatus(toUpdate);
                     table.refresh();
                 } catch (Exception e) {
+                    downloadFirefox.showAndWait();
                     closeDriver();;
                     CoreKernelSupaClazz.checkrequestsLock.unlock();
                     e.printStackTrace(System.out);

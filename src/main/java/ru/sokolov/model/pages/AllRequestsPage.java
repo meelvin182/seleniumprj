@@ -1,6 +1,7 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -48,8 +49,6 @@ public class AllRequestsPage extends AbstractPage {
                 reset = element;
             }
         }
-        rows = driver.findElements(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
-        rows.addAll(driver.findElements(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
     }
 
     public static void process (LoginEntity entity) throws Exception{
@@ -104,7 +103,9 @@ public class AllRequestsPage extends AbstractPage {
     public static void updateRequestStatus(SentRequest request) throws Exception{
         System.out.println("Searching for request with num: " + request.getRequestNum());
         WebElement element = getRequestWebElement(request);
+        System.out.println("6");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(STATUS_CLASS_NAME)));
+        TimeUnit.MILLISECONDS.sleep(250);
         System.out.println("Request found");
         String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
         System.out.println("Old status: " + request.getStatus() + " New status: " + status);
@@ -118,6 +119,7 @@ public class AllRequestsPage extends AbstractPage {
 
     public static void downloadRequest(WebElement element) throws Exception{
         element.findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
+        //Hope this is enough
         TimeUnit.SECONDS.sleep(3);
     }
 
@@ -131,16 +133,19 @@ public class AllRequestsPage extends AbstractPage {
     private static WebElement getRequestWebElement(SentRequest request) throws Exception{
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
         textField.clear();
+        textField.sendKeys(Keys.ENTER);
         TimeUnit.MILLISECONDS.sleep(250);
         textField.sendKeys(request.getRequestNum());
+        textField.sendKeys(Keys.ENTER);
+        TimeUnit.MILLISECONDS.sleep(250);
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
+        setPageData();
         update.click();
         TimeUnit.MILLISECONDS.sleep(500);
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
         TimeUnit.MILLISECONDS.sleep(250);
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
-
         driverWait.until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)),
                 ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]"))));
         return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));

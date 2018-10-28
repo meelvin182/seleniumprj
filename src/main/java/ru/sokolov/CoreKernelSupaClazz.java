@@ -1,13 +1,15 @@
 package ru.sokolov;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import ru.sokolov.gui.MainScreen;
 import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.LoginEntity;
@@ -17,8 +19,6 @@ import ru.sokolov.model.pages.AbstractPage;
 import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.LoginPage;
 import ru.sokolov.model.pages.RequestOverviewPage;
-import ru.sokolov.model.pages.SentSuccesfullyPage;
-import sun.rmi.runtime.Log;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -37,9 +37,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +46,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static ru.sokolov.gui.MainScreen.downloadFirefox;
 
 public final class CoreKernelSupaClazz {
 
@@ -63,7 +63,7 @@ public final class CoreKernelSupaClazz {
     private static WebDriver driver;
     private static ObjectMapper mapper = new ObjectMapper();
     private static Thread requestsChecker;
-    private static Map<String, Object> preferences = new Hashtable<String, Object>();
+    private static FirefoxProfile profile = new FirefoxProfile();
 
 
     public static boolean driverLoaded = loadDriver();
@@ -77,9 +77,18 @@ public final class CoreKernelSupaClazz {
         if(!tmpDir.exists()){
             tmpDir.mkdir();
         }
-        preferences.put("profile.default_content_settings.popups", 0);
-        preferences.put("download.prompt_for_download", "false");
-        preferences.put("download.default_directory", tmpDir.getPath());
+
+        //Set Location to store files after downloading.
+        profile.setPreference("browser.download.dir", tmpDir.getPath());
+        profile.setPreference("browser.download.manager.showWhenStarting", false);
+        profile.setPreference("browser.download.folderList", 2);
+        profile.setPreference("browser.download.panel.shown", false);
+        profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
+                "application/x-gzip");
+        profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
+                "application/zip");
+        profile.setPreference("browser.download.manager.showWhenStarting", false );
+        profile.setPreference("pdfjs.disabled", true );
 
         requestsChecker = new Thread(() -> {
             Timer timer = new Timer();
@@ -113,7 +122,7 @@ public final class CoreKernelSupaClazz {
     }
     public static List<List<LoginEntity>> sendRequests(List<RequestEntity> entities) throws Exception{
         checkrequestsLock.lock();
-        initDriver(null);
+        initDriver(profile);
         driver.navigate().to(MAIN_PAGE);
         LoginPage.setPageData(entities.get(0));
         LoginPage.login();
@@ -145,7 +154,7 @@ public final class CoreKernelSupaClazz {
             return;
         }
         checkrequestsLock.lock();
-        initDriver(preferences);
+        initDriver(profile);
         driver.navigate().to(MAIN_PAGE);
         LoginPage.setPageData(request);
         LoginPage.login();
@@ -201,12 +210,15 @@ public final class CoreKernelSupaClazz {
         checkrequestsLock.lock();
         System.out.println("Lock recieved");
         try {
-            initDriver(preferences);
+            initDriver(profile);
             driver.navigate().to(MAIN_PAGE);
             LoginPage.setPageData(requests.get(0));
             LoginPage.login();
             AllRequestsPage.updateRequestsStatus(requests);
         } catch (Exception e){
+            if(e.getMessage().contains("Cannot find firefox binary in PATH")){
+                Platform.runLater(downloadFirefox::showAndWait);
+            }
             e.printStackTrace(System.out);
         } finally {
             closeDriver();;
@@ -313,19 +325,17 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    private static void initDriver(Map<String, Object> preferences){
+    private static void initDriver(FirefoxProfile profile){
         if (driverLoaded) {
-            ChromeOptions chromeOptions = new ChromeOptions();
-            chromeOptions.addArguments("--headless");
-            if(preferences != null){
-                chromeOptions.setExperimentalOption("prefs", preferences);
-            }
-            WebDriver webDriver = new ChromeDriver(chromeOptions);
+            FirefoxOptions options = new FirefoxOptions();
+            options.setProfile(profile);
+            options.setHeadless(true);
+            WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
             AbstractPage.setDriver(webDriver);
         } else {
             driverLoaded = loadDriver();
-            initDriver(preferences);
+            initDriver(profile);
         }
     }
 
