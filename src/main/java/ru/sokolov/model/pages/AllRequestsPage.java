@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.MainScreen;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
@@ -111,6 +112,7 @@ public class AllRequestsPage extends AbstractPage {
         System.out.println("Old status: " + request.getStatus() + " New status: " + status);
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
+        MainScreen.table.refresh();
         if(request.isDownload()){
             downloadRequest(element);
             CoreKernelSupaClazz.unzipDownloadedRequest(request);
