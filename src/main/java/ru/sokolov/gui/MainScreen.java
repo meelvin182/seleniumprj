@@ -41,6 +41,7 @@ public class MainScreen extends Application {
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
+    public static boolean fireFoxChecked = false;
 
     private static int width = 1920 / 2;
     private static int height = 1080 / 2;
@@ -57,6 +58,8 @@ public class MainScreen extends Application {
     public void start(Stage primaryStage) {
         CoreKernelSupaClazz.loadKey(KeyPopup.fields);
         table.getColumns().addAll(getColumns());
+        table.setColumnResizePolicy((param) -> true );
+        table.setPrefHeight(height-100);
         try {
             table.getItems().addAll(!StringUtils.isEmpty(KeyPopup.fields.get(4).getText())
                     ? CoreKernelSupaClazz.readAllRequests(KeyPopup.fields.stream().map(t -> t.getText()).collect(Collectors.toList()))
@@ -65,11 +68,30 @@ public class MainScreen extends Application {
             e.printStackTrace(System.out);
         }
 
+        Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
+        downloadFirefox.setTitle("No Firefox found");
+        downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
+        downloadFirefox.setOnCloseRequest(new EventHandler<DialogEvent>() {
+            @Override
+            public void handle(DialogEvent event) {
+                System.exit(1);
+            }
+        });
+
+
         HBox buttons = new HBox();
         Button sendButton = new Button();
         sendButton.setText(SEND_REQUEST);
         sendButton.setOnAction(event -> {
-            RequestPopup requestPopup = new RequestPopup(primaryStage);
+            if(!fireFoxChecked){
+                try {
+                    CoreKernelSupaClazz.initDriver();
+                    fireFoxChecked = true;
+                } catch (Exception e){
+                    downloadFirefox.showAndWait();
+                }
+            }
+            new RequestPopup(primaryStage);
         });
 
         Button keyButton = new Button();
@@ -77,10 +99,6 @@ public class MainScreen extends Application {
         keyButton.setOnAction(event -> {
             KeyPopup keyPopup = new KeyPopup(primaryStage);
         });
-
-        Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
-        downloadFirefox.setTitle("No Firefox found");
-        downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
 
         Button updateRequestsButton = new Button();
         updateRequestsButton.setOnAction(event -> {
@@ -160,6 +178,8 @@ public class MainScreen extends Application {
                                 } else {
                                     SentRequest sentRequest = getTableView().getItems().get(getIndex());
                                     if (sentRequest.isDownload()) {
+                                        setGraphic(btn);
+                                        setText(null);
                                         btn.setOnAction(event -> {
                                             new Thread(() -> {
                                                 sentRequest.setStatus(DOWNLOADING_STATUS);
@@ -175,8 +195,6 @@ public class MainScreen extends Application {
                                                 }
                                             }).start();
                                         });
-                                        setGraphic(btn);
-                                        setText(null);
                                     }
                                 }
                             }

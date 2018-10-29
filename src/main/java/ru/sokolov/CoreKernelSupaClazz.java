@@ -339,6 +339,10 @@ public final class CoreKernelSupaClazz {
         }
     }
 
+    public static void initDriver(){
+        initDriver(profile);
+    }
+
     public static void closeDriver(){
         try {
             driver.close();
