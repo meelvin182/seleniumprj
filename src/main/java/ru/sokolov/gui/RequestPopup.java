@@ -149,8 +149,7 @@ public class RequestPopup {
                 return;
             }
 
-            String enteredNums = nums.getText();
-            System.out.println(nums.getText());
+            String enteredNums = nums.getText().replaceAll("\n", "");
             String[] allNums = enteredNums.contains(";") ? enteredNums.split(";") : new String[]{enteredNums};
             List<RequestEntity> entities = new ArrayList<>();
             for(String num : allNums){
