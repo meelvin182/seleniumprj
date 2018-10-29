@@ -87,6 +87,7 @@ public class MainScreen extends Application {
                 try {
                     CoreKernelSupaClazz.initDriver();
                     fireFoxChecked = true;
+                    CoreKernelSupaClazz.closeDriver();
                 } catch (Exception e){
                     downloadFirefox.showAndWait();
                 }
