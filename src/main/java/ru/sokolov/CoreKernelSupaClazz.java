@@ -6,6 +6,7 @@ import javafx.scene.control.TextField;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -64,7 +65,7 @@ public final class CoreKernelSupaClazz {
     private static ObjectMapper mapper = new ObjectMapper();
     private static Thread requestsChecker;
     private static FirefoxProfile profile = new FirefoxProfile();
-
+    private static FirefoxOptions options = new FirefoxOptions();
 
     public static boolean driverLoaded = loadDriver();
 
@@ -89,6 +90,20 @@ public final class CoreKernelSupaClazz {
                 "application/zip");
         profile.setPreference("browser.download.manager.showWhenStarting", false );
         profile.setPreference("pdfjs.disabled", true );
+
+        options.setProfile(profile);
+        options.setHeadless(true);
+
+        if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
+            String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
+            options.setBinary(new File(path).exists() ? path : path.replace("Program Files", "Program Files (x86)"));
+        }
+
+        try {
+            options.getBinary();
+        } catch (Exception e){
+            Platform.runLater(() -> downloadFirefox.showAndWait());
+        }
 
         requestsChecker = new Thread(() -> {
             Timer timer = new Timer();
@@ -327,9 +342,6 @@ public final class CoreKernelSupaClazz {
 
     private static void initDriver(FirefoxProfile profile){
         if (driverLoaded) {
-            FirefoxOptions options = new FirefoxOptions();
-            options.setProfile(profile);
-            options.setHeadless(true);
             WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
             AbstractPage.setDriver(webDriver);
