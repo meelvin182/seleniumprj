@@ -4,6 +4,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.exceptions.CouldntLoginException;
 
@@ -24,9 +26,12 @@ public class LoginPage extends AbstractPage {
     public static final String LOADING_INDICATOR_DELAY_CLASSNAME = "v-loading-indicator-delay";
     public static final String LOADING_INDICATOR_WAIT_CLASSNAME = "v-loading-indicator-wait";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginPage.class);
+
     public static void setPageData(LoginEntity entity) throws InterruptedException {
-        System.out.println("Waiting for login page loaded");
+        LOGGER.info("Waiting for login page loaded");
         driverWait = new WebDriverWait(driver, 120);
+        LOGGER.info("WAITING FOR ELEMENT: {}", TEXT_FIELD_CLASSNAME);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
         while (list.size() != 5) {
@@ -36,14 +41,18 @@ public class LoginPage extends AbstractPage {
         for (WebElement element : list) {
             String text = iterator.next();
             element.sendKeys(text);
+            LOGGER.info("WAITING TILL TEXT WAS SET");
             driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
             //Unavoidable hack here, sometime random fields are skipped for unknown reason
             TimeUnit.MILLISECONDS.sleep(500);
         }
+
     }
 
     public static void login() throws Exception {
+        LOGGER.info("LOGGING IN");
         driver.findElement(By.className(BUTTON_CLASSNAME)).click();
+        LOGGER.info("Waiting for error/successfully logged in");
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(ERROR)),
                 ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ MY_REQUESTS_BUTTON_ELEMENT_NAME +"')]"))));
         TimeUnit.MILLISECONDS.sleep(250);
@@ -51,11 +60,11 @@ public class LoginPage extends AbstractPage {
         try {
             element = driver.findElement(By.className(ERROR));
         } catch (Exception e) {
-            System.out.println("Logged in");
+            LOGGER.info("Logged in");
             return;
         }
         if(element != null){
-            System.out.println("Wrong Login");
+            LOGGER.info("LOGIN IS INCORRECT: {}");
             throw new CouldntLoginException();
         }
     }

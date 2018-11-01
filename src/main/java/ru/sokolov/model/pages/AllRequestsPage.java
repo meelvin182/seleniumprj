@@ -6,6 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.gui.MainScreen;
 import ru.sokolov.model.entities.LoginEntity;
@@ -41,6 +43,8 @@ public class AllRequestsPage extends AbstractPage {
     private static WebElement reset;
     private static List<WebElement> rows;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AllRequestsPage.class);
+
     public static void setPageData(){
         waitForPageLoad(driver);
         for (WebElement element : driver.findElements(By.className(UPDATE_BUTTON_CLASS_NAME))){
@@ -55,7 +59,7 @@ public class AllRequestsPage extends AbstractPage {
     public static void process (LoginEntity entity) throws Exception{
         SecondPage.openRequests(entity);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)));
-        System.out.println("My requests page opened");
+        LOGGER.info("My requests page opened");
         setPageData();
     }
 
@@ -92,8 +96,9 @@ public class AllRequestsPage extends AbstractPage {
             RequestEntity loginEntity = new RequestEntity();
             loginEntity.setKeyParts(entry.getKey());
             process(loginEntity);
-            System.out.println("Updating requests with key: " + entry.getKey());
+            LOGGER.info("Updating requests with key: {]", entry.getKey());
             driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
+            LOGGER.info("Odd element found");
             for(SentRequest request : entry.getValue()){
                 updateRequestStatus(request);
 
@@ -102,18 +107,19 @@ public class AllRequestsPage extends AbstractPage {
     }
 
     public static void updateRequestStatus(SentRequest request) throws Exception{
-        System.out.println("Searching for request with num: " + request.getRequestNum());
+        LOGGER.info("Searching for request with num: " + request.getRequestNum());
         WebElement element = getRequestWebElement(request);
-        System.out.println("6");
+        LOGGER.info("Waiting for status element located");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(STATUS_CLASS_NAME)));
         TimeUnit.MILLISECONDS.sleep(250);
-        System.out.println("Request found");
+        LOGGER.info("Request found");
         String status = element.findElement(By.className(STATUS_CLASS_NAME)).getText();
-        System.out.println("Old status: " + request.getStatus() + " New status: " + status);
+        LOGGER.info("Old status: {} New status: {}", request.getStatus(), status);
         request.setStatus(status);
         request.setDownload(READY_STATUS.equals(status));
         MainScreen.table.refresh();
         if(request.isDownload()){
+            LOGGER.info("Downloading request: {}");
             downloadRequest(element);
             CoreKernelSupaClazz.unzipDownloadedRequest(request);
         }
@@ -121,35 +127,46 @@ public class AllRequestsPage extends AbstractPage {
 
     public static void downloadRequest(WebElement element) throws Exception{
         element.findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
+        LOGGER.info("Download started");
         //Hope this is enough
         TimeUnit.SECONDS.sleep(3);
     }
 
     public static void downloadRequest(SentRequest request) throws Exception{
         process(request);
-        System.out.println("Downloading request");
+        LOGGER.info("Downloading request: {}", request.getRequestNum());
         getRequestWebElement(request).findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
+        LOGGER.info("Download started");
         TimeUnit.SECONDS.sleep(3);
     }
 
     private static WebElement getRequestWebElement(SentRequest request) throws Exception{
+        LOGGER.info("Waiting for search field");
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
         textField.clear();
         textField.sendKeys(Keys.ENTER);
+        LOGGER.info("Textfield filled");
         TimeUnit.MILLISECONDS.sleep(250);
         textField.sendKeys(request.getRequestNum());
         textField.sendKeys(Keys.ENTER);
         TimeUnit.MILLISECONDS.sleep(250);
+        LOGGER.info("Waiting till textfield have required value");
         driverWait.until(ExpectedConditions.attributeContains(textField, "value", request.getRequestNum()));
         setPageData();
+        LOGGER.info("Updating search params");
         update.click();
         TimeUnit.MILLISECONDS.sleep(500);
+        LOGGER.info("Waiting till yellow indicator removed");
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
         TimeUnit.MILLISECONDS.sleep(250);
+        LOGGER.info("Waiting till red indicator removed");
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
+        LOGGER.info("Waiting till odd element removed");
         driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
+        LOGGER.info("Waiting till even element has ID: {}", request.getRequestNum());
         driverWait.until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)),
                 ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]"))));
+        LOGGER.info("Providing request element");
         return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
     }
 }

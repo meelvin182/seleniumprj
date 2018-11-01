@@ -17,11 +17,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.exceptions.CouldntLoginException;
+import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,6 +56,8 @@ public class RequestPopup {
 
     public static Map<Integer, String> regions = loadRegions();
     public static Collection<String> ruzkeRegions = regions.values();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestPopup.class);
 
     public RequestPopup(Stage parent) {
         StackPane layout = new StackPane();

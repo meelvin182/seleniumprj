@@ -11,6 +11,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.gui.MainScreen;
 import ru.sokolov.gui.RequestPopup;
 import ru.sokolov.model.entities.LoginEntity;
@@ -56,6 +58,7 @@ public final class CoreKernelSupaClazz {
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
+    private static final String LOGS_PATH = APPDATA_PATH + "\\logs";
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
 
     public static final String TEST_KEY = "f5939ffe-f955-421a-b30b-884a5c527803";
@@ -66,6 +69,7 @@ public final class CoreKernelSupaClazz {
     private static Thread requestsChecker;
     private static FirefoxProfile profile = new FirefoxProfile();
     private static FirefoxOptions options = new FirefoxOptions();
+    private static final Logger LOGGER;
 
     public static boolean driverLoaded = loadDriver();
 
@@ -78,6 +82,8 @@ public final class CoreKernelSupaClazz {
         if(!tmpDir.exists()){
             tmpDir.mkdir();
         }
+        System.setProperty("logs.path", LOGS_PATH);
+        LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
 
         //Set Location to store files after downloading.
         profile.setPreference("browser.download.dir", tmpDir.getPath());
@@ -174,8 +180,8 @@ public final class CoreKernelSupaClazz {
         LoginPage.setPageData(request);
         LoginPage.login();
         AllRequestsPage.downloadRequest(request);
-        TimeUnit.SECONDS.sleep(2);
-        closeDriver();;
+        TimeUnit.SECONDS.sleep(3);
+        closeDriver();
 
         try {
             unzipDownloadedRequest(request);
@@ -221,9 +227,9 @@ public final class CoreKernelSupaClazz {
     }
 
     public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
-        System.out.println("Started updating request statuses");
+        LOGGER.info("Started updating request statuses");
         checkrequestsLock.lock();
-        System.out.println("Lock recieved");
+        LOGGER.info("Lock recieved");
         try {
             initDriver(profile);
             driver.navigate().to(MAIN_PAGE);
@@ -237,9 +243,9 @@ public final class CoreKernelSupaClazz {
             e.printStackTrace(System.out);
         } finally {
             closeDriver();;
-            System.out.println("Driver closed");
+            LOGGER.info("Driver closed");
             checkrequestsLock.unlock();
-            System.out.println("Lock given back");
+            LOGGER.info("Lock released");
         }
     }
 
@@ -276,7 +282,7 @@ public final class CoreKernelSupaClazz {
     }
 
     public static List<SentRequest> readAllRequests() throws IOException {
-        System.out.println("Reading all requests");
+        LOGGER.info("Reading all requests");
         List<SentRequest> requests = new ArrayList<>();
         for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
             requests.add(mapper.readValue(file, SentRequest.class));
@@ -285,7 +291,7 @@ public final class CoreKernelSupaClazz {
     }
 
     public static List<SentRequest> readAllRequests(List<String> keyParts) throws IOException {
-        System.out.println("Reading requests with specfic key");
+        LOGGER.info("Reading all requests");
         List<SentRequest> requests = new ArrayList<>();
         for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
             SentRequest request = mapper.readValue(file, SentRequest.class);
@@ -318,7 +324,7 @@ public final class CoreKernelSupaClazz {
             key.append(field.getText()).append("-");
         }
         String finalKey = key.toString().substring(0, key.length()-1);
-        System.out.println("SAVING KEY: " + finalKey);
+        LOGGER.info("SAVING KEY: {}", finalKey);
         try{
         BufferedWriter writer = new BufferedWriter(new FileWriter(SAVED_KEY_PATH));
         writer.write(finalKey);
@@ -335,7 +341,7 @@ public final class CoreKernelSupaClazz {
             List<String> keyParts = Arrays.asList(reader.readLine().split("-"));
             IntStream.range(0, keyParts.size()).forEach(i -> fields.get(i).setText(keyParts.get(i)));
         } catch (Exception e){
-            System.out.println("Couldn't load key");
+            LOGGER.error("Couldn't load key");
             e.printStackTrace(System.out);
         }
     }
@@ -359,7 +365,7 @@ public final class CoreKernelSupaClazz {
         try {
             driver.close();
         } catch (Exception e){
-            System.out.println("Driver already closed");
+            LOGGER.error("Driver already closed");
         }
     }
 

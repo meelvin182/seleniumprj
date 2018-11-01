@@ -54,6 +54,7 @@ public class MainScreen extends Application {
         });
     }
 
+
     @Override
     public void start(Stage primaryStage) {
         CoreKernelSupaClazz.loadKey(KeyPopup.fields);

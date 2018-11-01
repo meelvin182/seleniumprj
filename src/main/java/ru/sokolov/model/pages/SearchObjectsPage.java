@@ -4,6 +4,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.RequestEntity;
 
 import java.util.List;
@@ -25,9 +27,11 @@ public class SearchObjectsPage extends AbstractPage {
 
     private static int regionsAmountOnDropdown;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchObjectsPage.class);
+
+
     public static void setPageData(RequestEntity entity) {
         waitForPageLoad(driver);
-        driverWait = new WebDriverWait(driver, 60);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(dropdownButtonClassName)));
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(findButtonClassName)));
         driver.findElements(By.className(findButtonClassName))
@@ -35,17 +39,15 @@ public class SearchObjectsPage extends AbstractPage {
                     if (s.getText().equals("Найти")) findButton = s;
                 });
         setTextFieldElements();
-        System.out.println("Setting Cadastre Num");
+        LOGGER.info("Setting Cadastre Num: {}", entity.getCadastreNums());
         setCadastreNums(entity.getCadastreNums());
-        System.out.println("DONE");
-        System.out.println(" ");
-        System.out.println("Setting Region");
+        LOGGER.info("Setting Region: {}", entity.getRegion());
         setRegion(entity.getRegion());
-        System.out.println("DONE");
-        System.out.println(" ");
+        LOGGER.info("Everything is set");
     }
 
     public static void setTextFieldElements() {
+        LOGGER.info("Waiting FOR ELEMENTS LOCATED");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(CADASTRE_AND_STREET_ELEMENTS_CLASS)));
         List<WebElement> elementList = driver.findElements(By.className(CADASTRE_AND_STREET_ELEMENTS_CLASS));
         int maxWidth = Integer.parseInt(elementList.get(0).getAttribute("style").replaceAll("[\\D.]", ""));
@@ -56,6 +58,7 @@ public class SearchObjectsPage extends AbstractPage {
             cadastreNums = elementList.get(1);
             streetName = elementList.get(0);
         }
+        LOGGER.info("ELEMENTS LOCATED");
     }
 
     public static void setCadastreNums(String cadastreNumVal) {
@@ -71,6 +74,7 @@ public class SearchObjectsPage extends AbstractPage {
     }
 
     public static void setRegion(String region) {
+        LOGGER.info("WAITING FOR DROPDOWN IS OPEN");
         driverWait.until(ExpectedConditions.elementToBeClickable(By.className(dropdownButtonClassName)));
         WebElement dropdownButton = driver.findElements(By.className(dropdownButtonClassName)).get(0);
         dropdownButton.click();
@@ -78,6 +82,7 @@ public class SearchObjectsPage extends AbstractPage {
     }
 
     private static void selectDropdown(String value) {
+        LOGGER.info("WAITING FOR NEXT 10 LOCATED");
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(statusElementClassName)));
         WebElement element = driver.findElement(By.className(statusElementClassName));
         regionsAmountOnDropdown = Integer.parseInt(element.getText().split("/")[1]);
@@ -94,6 +99,7 @@ public class SearchObjectsPage extends AbstractPage {
         List<WebElement> tableRows = table.findElement(By.tagName("table")).findElements(By.tagName("tr"));
         for(WebElement element : tableRows){
             if(element.getText().equals(value)){
+                LOGGER.info("CHOOSING: {}", element.getText());
                 element.click();
                 return;
             }

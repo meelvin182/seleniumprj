@@ -5,6 +5,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
@@ -27,10 +29,12 @@ public class SecondPage extends LoginPage{
     private static WebElement myRequestsButton;
     private static WebElement myBillsButton;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecondPage.class);
+
     public static void setPageData() {
         waitForPageLoad(driver);
         waitForButtonsLoaded();
-        System.out.println("Second page is loaded");
+        LOGGER.info("Second page is loaded");
         for(WebElement element : driver.findElements(By.className(SECOND_PAGE_ELEMENTS_CLASS))){
             if(SEARCH_BUTTON_ELEMENT_NAME.equals(element.getText())){
                 setSearchButton(element);
@@ -42,7 +46,7 @@ public class SecondPage extends LoginPage{
                 setMyBillsButton(element);
             }
         }
-        System.out.println("Buttons found");
+        LOGGER.info("Buttons found");
     }
 
     public static WebElement getSearchButton() {
@@ -107,7 +111,7 @@ public class SecondPage extends LoginPage{
         waitForPageLoad(driver);
         setPageData();
         TimeUnit.SECONDS.sleep(1);
-        System.out.println("Opening request params");
+        LOGGER.info("Opening request params");
         openSearchParams();
     }
 
@@ -117,7 +121,7 @@ public class SecondPage extends LoginPage{
         waitForPageLoad(driver);
         setPageData();
         TimeUnit.SECONDS.sleep(1);
-        System.out.println("Openning My Requests Page");
+        LOGGER.info("Openning My Requests Page");
         openRequestsPage();
     }
 }

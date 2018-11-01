@@ -2,6 +2,8 @@ package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.exceptions.WrongCadastreNumException;
 
@@ -13,19 +15,20 @@ public class RequestsPage extends AbstractPage {
     private static final String FOUND_NOTIFICATION_CLASS_NAME = "v-table-cell-content-cadastral_num";
     private static final String SEND_BUTTON_CLASS_NAME = "v-table-cell-content-cadastral_num";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestsPage.class);
+
     public static void continueToRequestOverview(RequestEntity entity) throws Exception{
         SearchObjectsPage.sendRequest(entity);
-        System.out.println("Waiting for sent request notification");
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(FOUND_NOTIFICATION_CLASS_NAME)),
                 ExpectedConditions.presenceOfElementLocated(By.className(COULDNT_FIND_ERROR_CLASS_NAME))));
         TimeUnit.MILLISECONDS.sleep(500);
         try {
             driver.findElement(By.className(FOUND_NOTIFICATION_CLASS_NAME));
         } catch (Exception e){
-            System.out.println("Found nothing");
+            LOGGER.info("Found nothing");
             throw new WrongCadastreNumException();
         }
-        System.out.println("Opening request overview");
+        LOGGER.info("Opening request overview");
         driver.findElement(By.className(SEND_BUTTON_CLASS_NAME)).click();
     }
 }
