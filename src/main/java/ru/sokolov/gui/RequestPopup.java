@@ -157,8 +157,11 @@ public class RequestPopup {
             String enteredNums = nums.getText().replaceAll("\n", "");
             String[] allNums = enteredNums.contains(";") ? enteredNums.split(";") : new String[]{enteredNums};
             List<RequestEntity> entities = new ArrayList<>();
+            LOGGER.info("SENDING REQUESTS:");
             for(String num : allNums){
                 if(!StringUtils.isEmpty(num) && num.length()>=2 && StringUtils.isNumeric(num.substring(0,2))){
+                    String region = regions.get(Integer.parseInt(num.substring(0,2)));
+                    LOGGER.info("NUM: {} REGION: {}", num, region);
                     RequestEntity entity =  new RequestEntity(
                             KeyPopup.fields.stream().map(s -> s == null ? null : s.getText()).collect(Collectors.toList()),
                             num,
@@ -169,9 +172,7 @@ public class RequestPopup {
                     entities.add(entity);
                 }
             }
-
-            System.out.println("Entities formed, size: " + entities.size());
-
+            LOGGER.info(" ");
 
             sendButton.setText(SENDING);
             sendButton.setDisable(true);
