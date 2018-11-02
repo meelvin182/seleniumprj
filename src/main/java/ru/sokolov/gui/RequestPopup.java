@@ -45,17 +45,17 @@ import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
 
 public class RequestPopup {
 
-    private static final String ENTER_REQUEST_PARAMS = "Введите данные запроса";
-    private static final String KEY = "Ключ доступа";
-    private static final String CADASTRE_NUM = "Кадастровый номер";
-    private static final String CHOOSE_REGION = "Выбрать регион";
-    private static final String CHOOSE_FOLDER_PROMPT = "Папка загрузки";
-    private static final String FOLDER_SELECTOR_WINDOW_NAME = "Request save folder";
-    private static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
-    private static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
-    private static final String COULDNT_LOGIN = "Проверьте ключ";
-    private static final String SENDING = "Отправляется";
-    private static final String SEND = "Отправить";
+    public static final String ENTER_REQUEST_PARAMS = "Введите данные запроса";
+    public static final String KEY = "Ключ доступа";
+    public static final String CADASTRE_NUM = "Кадастровый номер";
+    public static final String CHOOSE_REGION = "Выбрать регион";
+    public static final String CHOOSE_FOLDER_PROMPT = "Папка загрузки";
+    public static final String FOLDER_SELECTOR_WINDOW_NAME = "Request save folder";
+    public static final String RADIO_BUTTON_ONE = "Запросить сведения об объекте";
+    public static final String RADIO_BUTTON_TWO = "Запросить сведения о переходе прав на объект";
+    public static final String COULDNT_LOGIN = "Проверьте ключ";
+    public static final String SENDING = "Отправляется";
+    public static final String SEND = "Отправить";
 
     private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
 

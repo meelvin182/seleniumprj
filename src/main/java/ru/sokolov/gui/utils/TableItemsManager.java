@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.sokolov.gui.RequestPopup.SENDING;
+
 public class TableItemsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TableItemsManager.class);
@@ -46,6 +48,13 @@ public class TableItemsManager {
                 .filter(t -> t.getRequestNum().contains(filterExp) ||
                         t.getCreationDate().contains(filterExp) ||
                         t.getStatus().contains(filterExp))
+                .collect(Collectors.toList());
+    }
+
+    public List<SentRequest> getNotSent(){
+        return allItems
+                .stream()
+                .filter(t -> t.getStatus().equals(SENDING))
                 .collect(Collectors.toList());
     }
 
