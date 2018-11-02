@@ -1,5 +1,6 @@
 package ru.sokolov.model.pages;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -37,16 +38,11 @@ public class LoginPage extends AbstractPage {
         while (list.size() != 5) {
             list.addAll(driver.findElements(By.className("v-textfield")));
         }
-        Iterator<String> iterator = entity.getKeyParts().iterator();
-        for (WebElement element : list) {
-            String text = iterator.next();
-            element.sendKeys(text);
-            LOGGER.info("WAITING TILL TEXT WAS SET");
-            driverWait.until(ExpectedConditions.attributeContains(element, "value", text));
-            //Unavoidable hack here, sometime random fields are skipped for unknown reason
-            TimeUnit.MILLISECONDS.sleep(500);
-        }
-
+        String key = StringUtils.join(entity.getKeyParts(), "-");
+        LOGGER.info("Sending key: {}", key);
+        list.get(0).sendKeys(key);
+        LOGGER.info("Waiting for fields populated by key parts");
+        driverWait.until(ExpectedConditions.attributeContains(list.get(4), "value", entity.getKeyParts().get(4)));
     }
 
     public static void login() throws Exception {

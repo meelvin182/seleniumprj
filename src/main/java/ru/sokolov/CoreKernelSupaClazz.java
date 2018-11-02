@@ -99,7 +99,7 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(true);
+        options.setHeadless(false);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -145,6 +145,7 @@ public final class CoreKernelSupaClazz {
     public static List<List<LoginEntity>> sendRequests(List<RequestEntity> entities) throws Exception{
         checkrequestsLock.lock();
         initDriver(profile);
+        LOGGER.info("Opening Main Page");
         driver.navigate().to(MAIN_PAGE);
         LoginPage.setPageData(entities.get(0));
         LoginPage.login();
@@ -177,6 +178,7 @@ public final class CoreKernelSupaClazz {
         }
         checkrequestsLock.lock();
         initDriver(profile);
+        LOGGER.info("Opening Main Page");
         driver.navigate().to(MAIN_PAGE);
         LoginPage.setPageData(request);
         LoginPage.login();
@@ -234,6 +236,7 @@ public final class CoreKernelSupaClazz {
         LOGGER.info("Lock recieved");
         try {
             initDriver(profile);
+            LOGGER.info("Opening Main Page");
             driver.navigate().to(MAIN_PAGE);
             LoginPage.setPageData(requests.get(0));
             LoginPage.login();
@@ -351,6 +354,7 @@ public final class CoreKernelSupaClazz {
         if (driverLoaded) {
             WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
+            driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
             AbstractPage.setDriver(webDriver);
         } else {
             driverLoaded = loadDriver();

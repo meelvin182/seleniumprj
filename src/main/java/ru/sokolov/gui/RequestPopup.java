@@ -232,7 +232,7 @@ public class RequestPopup {
                     LOGGER.info("Send Requests result: {}", builder);
                     partlySucces.setHeaderText(builder.toString());
                     Platform.runLater(partlySucces::showAndWait);
-                } else {
+                } else if(!success.isEmpty()) {
                     Platform.runLater(successAlert::showAndWait);
                 }
                 Platform.runLater(() -> {
