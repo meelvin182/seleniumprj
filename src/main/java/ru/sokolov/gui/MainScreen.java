@@ -10,17 +10,18 @@ import javafx.scene.control.DialogEvent;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.apache.commons.lang3.StringUtils;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.utils.TableItemsManager;
 import ru.sokolov.model.entities.SentRequest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,8 @@ public class MainScreen extends Application {
     public static final String DOWNLOADING_STATUS = "Скачивается...";
     public static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
     public static final String UPDATING_STATUS_STATUS = "Статус обновляется";
+
+    private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
@@ -57,7 +60,6 @@ public class MainScreen extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        CoreKernelSupaClazz.loadKey(KeyPopup.fields);
         table.getColumns().addAll(getColumns());
         table.setColumnResizePolicy((param) -> true );
         table.setPrefHeight(height-100);
@@ -72,6 +74,16 @@ public class MainScreen extends Application {
             }
         });
 
+        TextField filter = new TextField();
+        filter.setPromptText("Поиск запросов");
+        filter.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                itemsManager.refreshItems();
+            }
+        });
+        itemsManager.setTable(table);
+        itemsManager.setFilter(filter);
 
         HBox buttons = new HBox();
         Button sendButton = new Button();
@@ -114,7 +126,7 @@ public class MainScreen extends Application {
         root.getChildren().add(table);
 
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(layout, root);
+        vbox.getChildren().addAll(layout, filter, root);
 
         Scene scene = new Scene(vbox, width, height);
 

@@ -1,8 +1,6 @@
 package ru.sokolov.gui;
 
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -15,14 +13,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
-import ru.sokolov.model.pages.AllRequestsPage;
-import ru.sokolov.model.pages.RequestOverviewPage;
+import ru.sokolov.gui.utils.TableItemsManager;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +29,8 @@ public class KeyPopup {
     private static final String SAVE = "Сохранить";
     private static final String CLEAN = "Очистить";
 
+    private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
+
     public static List<TextField> fields = Stream.generate(KeyTextField::new).limit(5).collect(Collectors.toList());
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
@@ -41,6 +38,7 @@ public class KeyPopup {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyPopup.class);
 
     public KeyPopup(Stage parent) {
+        CoreKernelSupaClazz.loadKey(fields);
         StackPane layout = new StackPane();
         Stage stage = new Stage();
         stage.setTitle(ENRET_KEY);
@@ -81,13 +79,8 @@ public class KeyPopup {
         Button saveButton = new Button();
         saveButton.setText(SAVE);
         saveButton.setOnAction(event -> {
-            try {
-                MainScreen.table.getItems().addAll(!StringUtils.isEmpty(KeyPopup.fields.get(4).getText())
-                        ? CoreKernelSupaClazz.readAllRequests(KeyPopup.fields.stream().map(t -> t.getText()).collect(Collectors.toList()))
-                        : CoreKernelSupaClazz.readAllRequests());
-            } catch (IOException e) {
-                LOGGER.error("ERROR: {}", e);
-            }
+            itemsManager.loadItems(fields);
+            itemsManager.refreshItems();
             stage.close();
         });
         saveButton.setPadding(new Insets(16));
@@ -110,6 +103,10 @@ public class KeyPopup {
                 stage.close();
             }
         });
+        stage.setOnCloseRequest(event -> {
+                    itemsManager.loadItems(fields);
+                    itemsManager.refreshItems();
+                });
         stage.setScene(scene);
         stage.show();
 

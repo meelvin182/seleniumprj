@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.utils.TableItemsManager;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
@@ -55,6 +56,8 @@ public class RequestPopup {
     private static final String COULDNT_LOGIN = "Проверьте ключ";
     private static final String SENDING = "Отправляется";
     private static final String SEND = "Отправить";
+
+    private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
 
     public static Map<Integer, String> regions = loadRegions();
     public static Collection<String> ruzkeRegions = regions.values();
@@ -219,8 +222,7 @@ public class RequestPopup {
                     closeDriver();
                 }
                 if(!success.isEmpty()){
-                    MainScreen.table.getItems().addAll(success);
-                    MainScreen.table.refresh();
+                    itemsManager.addItems(success);
                 }
                 if (!wrongCadastreNums.isEmpty()) {
                     StringBuilder builder = new StringBuilder();
