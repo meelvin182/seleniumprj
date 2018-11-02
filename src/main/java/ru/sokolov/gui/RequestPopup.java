@@ -9,11 +9,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +26,6 @@ import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.exceptions.CouldntLoginException;
-import ru.sokolov.model.pages.RequestOverviewPage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
@@ -57,6 +59,9 @@ public class RequestPopup {
     public static Map<Integer, String> regions = loadRegions();
     public static Collection<String> ruzkeRegions = regions.values();
 
+    private Text textHolder = new Text();
+    private double oldHeight = 0;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestPopup.class);
 
     public RequestPopup(Stage parent) {
@@ -73,9 +78,22 @@ public class RequestPopup {
 //        box.setPromptText(CHOOSE_REGION);
 
         TextArea nums = new TextArea();
+        UnaryOperator<TextFormatter.Change> filter = c -> {
+            c.setText(c.getText().replaceAll("\n", "").replaceAll(";", "\n"));
+            return c ;
+        };
+        nums.setTextFormatter(new TextFormatter<Object>(filter));
         nums.setPromptText(CADASTRE_NUM);
         nums.setWrapText(true);
-        nums.setPrefHeight(50);
+        nums.setPrefSize(200, 10);
+
+        textHolder.textProperty().bind(nums.textProperty());
+        textHolder.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldHeight != newValue.getHeight()) {
+                oldHeight = newValue.getHeight();
+                nums.setPrefHeight(textHolder.getLayoutBounds().getHeight() + 20); // +20 is for paddings
+            }
+        });
 //        nums.setOnKeyTyped(event -> {
 //            System.out.println(event.getCharacter());
 //            String num = nums.getText();
@@ -154,8 +172,8 @@ public class RequestPopup {
                 return;
             }
 
-            String enteredNums = nums.getText().replaceAll("\n", "");
-            String[] allNums = enteredNums.contains(";") ? enteredNums.split(";") : new String[]{enteredNums};
+            String enteredNums = nums.getText();
+            String[] allNums = enteredNums.contains("\n") ? enteredNums.split("\n") : new String[]{enteredNums};
             List<RequestEntity> entities = new ArrayList<>();
             LOGGER.info("SENDING REQUESTS:");
             for(String num : allNums){
@@ -209,6 +227,7 @@ public class RequestPopup {
                         builder.append("Номер: ").append(entity.getCadastreNums()).append(" Регион: ").append(entity.getRegion()).append("\n");
                     }
                     builder.append("Всего успешно отправленных запросов: " + (entities.size() - wrongCadastreNums.size()));
+                    LOGGER.info("Send Requests result: {}", builder);
                     partlySucces.setHeaderText(builder.toString());
                     Platform.runLater(partlySucces::showAndWait);
                 } else {

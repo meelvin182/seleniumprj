@@ -107,7 +107,7 @@ public class SecondPage extends LoginPage{
     }
 
     public static void search(RequestEntity entity) throws Exception{
-        driverWait = new WebDriverWait(driver, 60);
+        driverWait = new WebDriverWait(driver, 120);
         waitForPageLoad(driver);
         setPageData();
         TimeUnit.SECONDS.sleep(1);

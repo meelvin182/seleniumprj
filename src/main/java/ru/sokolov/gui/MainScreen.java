@@ -30,14 +30,14 @@ import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
 
 public class MainScreen extends Application {
 
-    private static final String SEND_REQUEST = "Отправить Запрос";
-    private static final String ENTER_KEY = "Ввести ключ";
-    private static final String UPDATE_STATUSES_BUTTON_NAME = "Обновить статус запросов";
-    private static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
-    private static final String DOWNLOADED_STATUS = "Скачано";
-    private static final String DOWNLOADING_STATUS = "Скачивается...";
-    private static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
-    private static final String UPDATING_STATUS_STATUS = "Статус обновляется";
+    public static final String SEND_REQUEST = "Отправить Запрос";
+    public static final String ENTER_KEY = "Ввести ключ";
+    public static final String UPDATE_STATUSES_BUTTON_NAME = "Обновить статус запросов";
+    public static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
+    public static final String DOWNLOADED_STATUS = "Скачано";
+    public static final String DOWNLOADING_STATUS = "Скачивается...";
+    public static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
+    public static final String UPDATING_STATUS_STATUS = "Статус обновляется";
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
@@ -61,13 +61,6 @@ public class MainScreen extends Application {
         table.getColumns().addAll(getColumns());
         table.setColumnResizePolicy((param) -> true );
         table.setPrefHeight(height-100);
-        try {
-            table.getItems().addAll(!StringUtils.isEmpty(KeyPopup.fields.get(4).getText())
-                    ? CoreKernelSupaClazz.readAllRequests(KeyPopup.fields.stream().map(t -> t.getText()).collect(Collectors.toList()))
-                    : CoreKernelSupaClazz.readAllRequests());
-        } catch (IOException e) {
-            e.printStackTrace(System.out);
-        }
 
         Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
         downloadFirefox.setTitle("No Firefox found");
@@ -84,15 +77,6 @@ public class MainScreen extends Application {
         Button sendButton = new Button();
         sendButton.setText(SEND_REQUEST);
         sendButton.setOnAction(event -> {
-            if(!fireFoxChecked){
-                try {
-                    CoreKernelSupaClazz.initDriver();
-                    fireFoxChecked = true;
-                    CoreKernelSupaClazz.closeDriver();
-                } catch (Exception e){
-                    downloadFirefox.showAndWait();
-                }
-            }
             new RequestPopup(primaryStage);
         });
 
@@ -147,6 +131,7 @@ public class MainScreen extends Application {
             CoreKernelSupaClazz.saveKey(KeyPopup.fields);
         });
         primaryStage.show();
+        new KeyPopup(primaryStage);
     }
 
     private List<TableColumn<SentRequest, String>> getColumns() {

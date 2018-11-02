@@ -50,6 +50,7 @@ import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static ru.sokolov.gui.MainScreen.DOWNLOADED_STATUS;
 import static ru.sokolov.gui.MainScreen.downloadFirefox;
 
 public final class CoreKernelSupaClazz {
@@ -98,7 +99,7 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(true);
+        options.setHeadless(false);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -202,6 +203,7 @@ public final class CoreKernelSupaClazz {
             File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), tmpDir.getPath());
             File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
             FileUtils.cleanDirectory(tmpDir);
+            request.setStatus(DOWNLOADED_STATUS);
             Desktop.getDesktop().open(unzippedUnzippedFIle.getParentFile());
         } catch (Exception e){
             throw e;
@@ -341,8 +343,7 @@ public final class CoreKernelSupaClazz {
             List<String> keyParts = Arrays.asList(reader.readLine().split("-"));
             IntStream.range(0, keyParts.size()).forEach(i -> fields.get(i).setText(keyParts.get(i)));
         } catch (Exception e){
-            LOGGER.error("Couldn't load key");
-            e.printStackTrace(System.out);
+            LOGGER.error("Couldn't load key: {}", e);
         }
     }
 

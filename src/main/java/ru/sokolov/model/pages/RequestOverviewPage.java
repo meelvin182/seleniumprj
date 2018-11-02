@@ -60,14 +60,12 @@ public class RequestOverviewPage extends AbstractPage{
                 successfully.add(request);
                 LOGGER.info("SWITCHING TO RIGHTHOLDER");
                 SecondPage.openRhldr();
-                TimeUnit.MILLISECONDS.sleep(5000);
             } catch (WrongCadastreNumException e){
                 System.out.println("Nothing found for Cadastre number: " + entity.getCadastreNums());
                 notFound.add(entity);
             }
             LOGGER.info("SWITCHING TO RIGHTHOLDER");
             SecondPage.openRhldr();
-            TimeUnit.MILLISECONDS.sleep(500);
         }
         LOGGER.info("SENT {} REQUESTS, {} HAD ERRORS", successfully.size(), notFound.size());
         List<List<LoginEntity>> both = new ArrayList<>();
