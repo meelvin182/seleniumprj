@@ -77,12 +77,12 @@ public class RequestPopup {
 //        box.getItems().addAll(ruzkeRegions);
 //        box.setPromptText(CHOOSE_REGION);
 
-        TextArea nums = new TextArea();
+        TextArea nums = new CopyPasteNumsArea();
         UnaryOperator<TextFormatter.Change> filter = c -> {
-            c.setText(c.getText().replaceAll("\n", "").replaceAll(";", "\n"));
+            c.setText(c.getText().replaceAll(";", "\n"));
             return c ;
         };
-        nums.setTextFormatter(new TextFormatter<Object>(filter));
+        nums.setTextFormatter(new TextFormatter<>(filter));
         nums.setPromptText(CADASTRE_NUM);
         nums.setWrapText(true);
         nums.setPrefSize(200, 10);
@@ -143,9 +143,11 @@ public class RequestPopup {
         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
         successAlert.setHeaderText("Запрос отправлен");
         successAlert.setTitle("Notification");
+        successAlert.setOnCloseRequest(event -> stage.close());
 
         Alert partlySucces = new Alert(Alert.AlertType.INFORMATION);
         partlySucces.setTitle("Notification");
+        partlySucces.setOnCloseRequest(event -> stage.close());
 
         Alert incorrectKey = new Alert(Alert.AlertType.ERROR);
         incorrectKey.setHeaderText(COULDNT_LOGIN);
