@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static ru.sokolov.gui.RequestPopup.SENDING;
+
 public class SentRequest implements Serializable, LoginEntity{
 
     private List<String> keyParts;
@@ -13,7 +15,7 @@ public class SentRequest implements Serializable, LoginEntity{
     private String creationDate;
     private String status;
     private boolean download;
-    private String path;
+    private String path = "";
 
     public SentRequest() {
     }
@@ -21,10 +23,11 @@ public class SentRequest implements Serializable, LoginEntity{
     public SentRequest(RequestEntity entity) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime currentDate = LocalDateTime.now();
+        this.requestNum = entity.getCadastreNums();
         this.creationDate = dtf.format(currentDate);
-        this.status = "Отправлен";
+        this.status = SENDING;
         this.download = false;
-        this.path = entity.getFilePath();
+        this.path = path + entity.getFilePath();
         this.keyParts = entity.getKeyParts();
     }
 
@@ -79,10 +82,12 @@ public class SentRequest implements Serializable, LoginEntity{
     @Override
     public String toString() {
         return "SentRequest{" +
-                "requestNum='" + requestNum + '\'' +
+                "keyParts=" + keyParts +
+                ", requestNum='" + requestNum + '\'' +
                 ", creationDate='" + creationDate + '\'' +
                 ", status='" + status + '\'' +
                 ", download=" + download +
+                ", path='" + path + '\'' +
                 '}';
     }
 }

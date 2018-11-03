@@ -12,7 +12,10 @@ import ru.sokolov.model.exceptions.WrongCadastreNumException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static ru.sokolov.gui.RequestPopup.SENT;
 
 public class RequestOverviewPage extends AbstractPage{
 
@@ -42,11 +45,13 @@ public class RequestOverviewPage extends AbstractPage{
         driver.findElement(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")).click();
     }
 
-    public static List<List<LoginEntity>> sendReuests(List<RequestEntity> entities) throws Exception{
+    public static void sendReuests(Map<RequestEntity, SentRequest> entities) throws Exception{
         LOGGER.info("SENDING {} REQUESTS", entities.size());
         List<LoginEntity> notFound = new ArrayList<>();
         List<LoginEntity> successfully = new ArrayList<>();
-        for(RequestEntity entity : entities){
+        for(Map.Entry<RequestEntity, SentRequest> requests : entities.entrySet()){
+            RequestEntity entity = requests.getKey();
+            SentRequest request = requests.getValue();
             try{
                 RequestsPage.continueToRequestOverview(entity);
                 setPageData(entity);
@@ -55,8 +60,8 @@ public class RequestOverviewPage extends AbstractPage{
                 LOGGER.info("LOCATING {} BUTTON", SEND_REQUEST_BUTTON);
                 driver.findElement(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")).click();
                 LOGGER.info("Request sent");
-                SentRequest request = new SentRequest(entity);
                 request.setRequestNum(SentSuccesfullyPage.getRequestNum());
+                request.setStatus(SENT);
                 successfully.add(request);
                 LOGGER.info("SWITCHING TO RIGHTHOLDER");
                 SecondPage.openRhldr();
@@ -67,10 +72,5 @@ public class RequestOverviewPage extends AbstractPage{
             LOGGER.info("SWITCHING TO RIGHTHOLDER");
             SecondPage.openRhldr();
         }
-        LOGGER.info("SENT {} REQUESTS, {} HAD ERRORS", successfully.size(), notFound.size());
-        List<List<LoginEntity>> both = new ArrayList<>();
-        both.add(notFound);
-        both.add(successfully);
-        return both;
     }
 }

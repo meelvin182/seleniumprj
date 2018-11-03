@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.utils.RequestsManager;
 import ru.sokolov.gui.utils.TableItemsManager;
 import ru.sokolov.model.entities.SentRequest;
 
@@ -41,6 +42,7 @@ public class MainScreen extends Application {
     public static final String UPDATING_STATUS_STATUS = "Статус обновляется";
 
     private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
+    private static final RequestsManager requestsManager = RequestsManager.getInstance();
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
@@ -102,15 +104,10 @@ public class MainScreen extends Application {
         updateRequestsButton.setOnAction(event -> {
             new Thread(() -> {
                 try {
-                    List<SentRequest> toUpdate = table.getItems().stream().filter(t -> !DOWNLOADED_STATUS.equals(t.getStatus())).collect(Collectors.toList());
-                    toUpdate.forEach(request -> request.setStatus(UPDATING_STATUS_STATUS));
-                    table.refresh();
-                    CoreKernelSupaClazz.updateRequestsStatus(toUpdate);
+                    requestsManager.updateStatuses();
                     table.refresh();
                 } catch (Exception e) {
                     downloadFirefox.showAndWait();
-                    closeDriver();;
-                    CoreKernelSupaClazz.checkrequestsLock.unlock();
                     e.printStackTrace(System.out);
                 }
             }).start();

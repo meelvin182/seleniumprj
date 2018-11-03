@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.utils.RequestsManager;
 import ru.sokolov.gui.utils.TableItemsManager;
 import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
@@ -56,8 +57,10 @@ public class RequestPopup {
     public static final String COULDNT_LOGIN = "Проверьте ключ";
     public static final String SENDING = "Отправляется";
     public static final String SEND = "Отправить";
+    public static final String SENT = "Отправлен";
 
     private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
+    private static final RequestsManager requestsManager = RequestsManager.getInstance();
 
     public static Map<Integer, String> regions = loadRegions();
     public static Collection<String> ruzkeRegions = regions.values();
@@ -161,14 +164,6 @@ public class RequestPopup {
         sendButton.setOnAction((ActionEvent event) -> {
             boolean incorrectInput = false;
             nums.setStyle(null);
-            System.out.println(regions.get(50));
-//            box.setStyle(null);
-//
-//            if (box.getValue() == null) {
-//                box.setStyle("-fx-background-color: #ff736e;");
-//                incorrectInput = true;
-//            }
-
             if (nums.getText().isEmpty()) {
                 nums.setStyle("-fx-background-color: #ff736e;");
                 incorrectInput = true;
@@ -196,53 +191,9 @@ public class RequestPopup {
                 }
             }
             LOGGER.info(" ");
-
-            sendButton.setText(SENDING);
-            sendButton.setDisable(true);
-
-            new Thread(() -> {
-                List<RequestEntity> wrongCadastreNums = new ArrayList<>();
-                List<SentRequest> success = new ArrayList<>();
-                try {
-                    List<List<LoginEntity>> sent = CoreKernelSupaClazz.sendRequests(entities);
-                    wrongCadastreNums.addAll(sent.get(0).stream().map(t -> (RequestEntity) t).collect(Collectors.toList()));
-                    success.addAll(sent.get(1).stream().map(t -> (SentRequest) t).collect(Collectors.toList()));
-                } catch (CouldntLoginException e){
-                    Platform.runLater(incorrectKey::showAndWait);
-                    closeDriver();
-                    Platform.runLater(() -> {
-                        sendButton.setText(SEND);
-                        sendButton.setDisable(false);
-                    });
-                    return;
-                } catch (Exception e){
-                    e.printStackTrace(System.out);
-                    Platform.runLater(errorAlert::showAndWait);
-                } finally {
-                    closeDriver();
-                }
-                if(!success.isEmpty()){
-                    itemsManager.addItems(success);
-                }
-                if (!wrongCadastreNums.isEmpty()) {
-                    StringBuilder builder = new StringBuilder();
-                    builder.append("Ничего не найдена для запросов: \n");
-                    for(RequestEntity entity : wrongCadastreNums){
-                        builder.append("Номер: ").append(entity.getCadastreNums()).append(" Регион: ").append(entity.getRegion()).append("\n");
-                    }
-                    builder.append("Всего успешно отправленных запросов: " + (entities.size() - wrongCadastreNums.size()));
-                    LOGGER.info("Send Requests result: {}", builder);
-                    partlySucces.setHeaderText(builder.toString());
-                    Platform.runLater(partlySucces::showAndWait);
-                } else if(!success.isEmpty()) {
-                    Platform.runLater(successAlert::showAndWait);
-                }
-                Platform.runLater(() -> {
-                    sendButton.setText(SEND);
-                    sendButton.setDisable(false);
-                });
-
-            }).start();
+            Map<RequestEntity, SentRequest> requestMap = entities.stream().collect(Collectors.toMap(t -> t, t -> new SentRequest(t)));
+            itemsManager.addToBeSent(requestMap);
+            requestsManager.send();
         });
 
         sendButton.setText(SEND);

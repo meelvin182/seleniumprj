@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +56,6 @@ import static ru.sokolov.gui.MainScreen.downloadFirefox;
 
 public final class CoreKernelSupaClazz {
 
-    public static final ReentrantLock checkrequestsLock = new ReentrantLock();
     private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
@@ -131,7 +131,6 @@ public final class CoreKernelSupaClazz {
     //Unused atm
     @Deprecated
     public static void checkForProcessedRequests() {
-        checkrequestsLock.lock();
         RequestEntity entity = new RequestEntity();
         entity.setKeyParts(Arrays.stream(TEST_KEY.split("-")).collect(Collectors.toList()));
         try {
@@ -140,32 +139,25 @@ public final class CoreKernelSupaClazz {
             e.printStackTrace(System.out);
         }
         closeDriver();;
-        checkrequestsLock.unlock();
     }
-    public static List<List<LoginEntity>> sendRequests(List<RequestEntity> entities) throws Exception{
-        checkrequestsLock.lock();
+    public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception{
         initDriver(profile);
         LOGGER.info("Opening Main Page");
         driver.navigate().to(MAIN_PAGE);
-        LoginPage.setPageData(entities.get(0));
+        LoginPage.setPageData(entities.keySet().iterator().next());
         LoginPage.login();
-        List<List<LoginEntity>> wrongNum = RequestOverviewPage.sendReuests(entities);
+        RequestOverviewPage.sendReuests(entities);
         driver.close();
-        checkrequestsLock.unlock();
-        return wrongNum;
-
     }
 
     @Deprecated
     public static void getRequests(RequestEntity entity) throws Exception {
-        checkrequestsLock.lock();
         try{
             AllRequestsPage.process(entity);
         } catch (Exception e){
             e.printStackTrace(System.out);
         } finally {
             closeDriver();;
-            checkrequestsLock.unlock();
         }
     }
 
@@ -176,7 +168,6 @@ public final class CoreKernelSupaClazz {
             Desktop.getDesktop().open(file.getParentFile());
             return;
         }
-        checkrequestsLock.lock();
         initDriver(profile);
         LOGGER.info("Opening Main Page");
         driver.navigate().to(MAIN_PAGE);
@@ -190,8 +181,6 @@ public final class CoreKernelSupaClazz {
             unzipDownloadedRequest(request);
         } catch (Exception e){
             throw e;
-        } finally {
-            checkrequestsLock.unlock();
         }
     }
 
@@ -232,8 +221,6 @@ public final class CoreKernelSupaClazz {
 
     public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
         LOGGER.info("Started updating request statuses");
-        checkrequestsLock.lock();
-        LOGGER.info("Lock recieved");
         try {
             initDriver(profile);
             LOGGER.info("Opening Main Page");
@@ -249,8 +236,6 @@ public final class CoreKernelSupaClazz {
         } finally {
             closeDriver();;
             LOGGER.info("Driver closed");
-            checkrequestsLock.unlock();
-            LOGGER.info("Lock released");
         }
     }
 

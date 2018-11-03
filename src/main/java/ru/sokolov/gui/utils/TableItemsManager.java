@@ -7,12 +7,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.sokolov.gui.RequestPopup.SENDING;
@@ -21,10 +25,11 @@ public class TableItemsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TableItemsManager.class);
 
-    private static TableView<SentRequest> table;
-    private static TextField filter;
-    private static List<SentRequest> allItems = new ArrayList<>();
-    private static TableItemsManager INSTANCE;
+    private TableView<SentRequest> table;
+    private TextField filter;
+    private List<SentRequest> allItems = new ArrayList<>();
+    private static final TableItemsManager INSTANCE = new TableItemsManager();
+    private Map<RequestEntity, SentRequest> toSend = new HashMap<>();
 
     public void loadItems(List<TextField> fields){
         try {
@@ -36,7 +41,7 @@ public class TableItemsManager {
         }
     }
 
-    public void addItems(List<SentRequest> items){
+    public void addItems(Collection<SentRequest> items){
         allItems.addAll(items);
         refreshItems();
     }
@@ -54,12 +59,12 @@ public class TableItemsManager {
     public List<SentRequest> getNotSent(){
         return allItems
                 .stream()
-                .filter(t -> t.getStatus().equals(SENDING))
+                .filter(t -> SENDING.equals(t.getStatus()))
                 .collect(Collectors.toList());
     }
 
     public void setTable(TableView table) {
-        TableItemsManager.table = table;
+        this.table = table;
     }
 
     public void refreshItems(){
@@ -69,14 +74,28 @@ public class TableItemsManager {
         table.refresh();
     }
 
+    public void addToBeSent(Map<RequestEntity, SentRequest> requests){
+        requests.values().stream().forEach(System.out::println);
+        addItems(requests.values());
+        toSend.putAll(requests);
+    }
+
     public void setFilter(TextField filter) {
-        TableItemsManager.filter = filter;
+        this.filter = filter;
+    }
+
+    public List<SentRequest> getAllItems() {
+        return allItems;
+    }
+
+    public Map<RequestEntity, SentRequest> getToSend() {
+        toSend = toSend.entrySet().stream()
+                .filter(t -> t.getValue().getStatus().equals(SENDING))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return toSend;
     }
 
     public static TableItemsManager getInstance(){
-        if(INSTANCE == null){
-            INSTANCE = new TableItemsManager();
-        }
         return INSTANCE;
     }
 
