@@ -191,7 +191,7 @@ public class RequestPopup {
                 }
             }
             LOGGER.info(" ");
-            Map<RequestEntity, SentRequest> requestMap = entities.stream().collect(Collectors.toMap(t -> t, t -> new SentRequest(t)));
+            Map<RequestEntity, SentRequest> requestMap = entities.stream().collect(Collectors.toMap(t -> t, SentRequest::new));
             itemsManager.addToBeSent(requestMap);
             requestsManager.send();
         });
