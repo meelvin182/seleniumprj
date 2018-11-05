@@ -58,6 +58,7 @@ public class RequestPopup {
     public static final String SENDING = "Отправляется";
     public static final String SEND = "Отправить";
     public static final String SENT = "Отправлен";
+    public static final String NOT_FOUND = "Ничего не найдено по запросу";
 
     private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
     private static final RequestsManager requestsManager = RequestsManager.getInstance();
@@ -194,6 +195,7 @@ public class RequestPopup {
             Map<RequestEntity, SentRequest> requestMap = entities.stream().collect(Collectors.toMap(t -> t, SentRequest::new));
             itemsManager.addToBeSent(requestMap);
             requestsManager.send();
+            stage.close();
         });
 
         sendButton.setText(SEND);

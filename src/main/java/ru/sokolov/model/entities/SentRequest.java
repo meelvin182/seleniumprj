@@ -16,6 +16,7 @@ public class SentRequest implements Serializable, LoginEntity{
     private String status;
     private boolean download;
     private String path = "";
+    private RequestEntity requestEntity;
 
     public SentRequest() {
     }
@@ -29,6 +30,7 @@ public class SentRequest implements Serializable, LoginEntity{
         this.download = false;
         this.path = path + entity.getFilePath();
         this.keyParts = entity.getKeyParts();
+        requestEntity = entity;
     }
 
     public String getRequestNum() {
@@ -77,6 +79,14 @@ public class SentRequest implements Serializable, LoginEntity{
 
     public void setKeyParts(List<String> keyParts) {
         this.keyParts = keyParts;
+    }
+
+    public RequestEntity getRequestEntity() {
+        return requestEntity;
+    }
+
+    public void setRequestEntity(RequestEntity requestEntity) {
+        this.requestEntity = requestEntity;
     }
 
     @Override

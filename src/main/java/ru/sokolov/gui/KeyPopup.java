@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
+import ru.sokolov.gui.utils.RequestsManager;
 import ru.sokolov.gui.utils.TableItemsManager;
 
 import java.util.Arrays;

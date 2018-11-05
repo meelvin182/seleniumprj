@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
+import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
+import static ru.sokolov.gui.RequestPopup.SENDING;
 
 
 public class MainScreen extends Application {
@@ -130,7 +132,10 @@ public class MainScreen extends Application {
         primaryStage.setTitle(WINDOW_TITLE_NAME);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
-            for (SentRequest request : table.getItems()) {
+            for (SentRequest request : table.getItems()
+                    .stream()
+                    .filter(t -> !t.getStatus().equals(NOT_FOUND))
+                    .collect(Collectors.toList())) {
                 try {
                     CoreKernelSupaClazz.saveRequestToJson(request);
                 } catch (Exception e) {
@@ -138,6 +143,7 @@ public class MainScreen extends Application {
                 }
             }
             CoreKernelSupaClazz.saveKey(KeyPopup.fields);
+            requestsManager.shutDown();
         });
         primaryStage.show();
         new KeyPopup(primaryStage);

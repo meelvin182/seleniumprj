@@ -99,7 +99,7 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(false);
+        options.setHeadless(true);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -142,13 +142,18 @@ public final class CoreKernelSupaClazz {
     }
     public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception{
         if(entities.isEmpty()) return;
-        initDriver(profile);
-        LOGGER.info("Opening Main Page");
-        driver.navigate().to(MAIN_PAGE);
-        LoginPage.setPageData(entities.keySet().iterator().next());
-        LoginPage.login();
-        RequestOverviewPage.sendReuests(entities);
-        driver.close();
+        try {
+            initDriver(profile);
+            LOGGER.info("Opening Main Page");
+            driver.navigate().to(MAIN_PAGE);
+            LoginPage.setPageData(entities.keySet().iterator().next());
+            LoginPage.login();
+            RequestOverviewPage.sendReuests(entities);
+        } catch (Exception e){
+            LOGGER.error("Error: {]", e);
+        } finally {
+            driver.close();
+        }
     }
 
     @Deprecated

@@ -14,10 +14,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ru.sokolov.gui.MainScreen.DOWNLOADED_STATUS;
 import static ru.sokolov.gui.MainScreen.UPDATING_STATUS_STATUS;
+import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
 import static ru.sokolov.gui.RequestPopup.SENDING;
 
 public class RequestsManager {
@@ -25,27 +27,21 @@ public class RequestsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestsManager.class);
 
     private final Semaphore mutex = new Semaphore(1, true);
-    private static final RequestsManager INSTANCE = new RequestsManager();
+    private static RequestsManager INSTANCE = init();
     private final ExecutorService updateService = Executors.newSingleThreadExecutor();
     private final ExecutorService sendService = Executors.newScheduledThreadPool(5);
-    private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
-    private static final Map<RequestEntity, SentRequest> notSent = new HashMap<>();
+    private final TableItemsManager itemsManager = TableItemsManager.getInstance();
     private final ScheduledExecutorService sendScheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService updateScheduler = Executors.newScheduledThreadPool(1);
 
     public void send(){
         sendService.execute(() -> {
-            Map<RequestEntity, SentRequest> toSend = itemsManager.getToSend();
             try {
                 LOGGER.info("{} Trying to obtain mutex", this.toString());
                 mutex.acquire();
                 CoreKernelSupaClazz.sendRequests(itemsManager.getToSend());
             } catch (Exception e) {
                 LOGGER.error("Error when sending requests: {}", e);
-                notSent.putAll(toSend.entrySet()
-                        .stream()
-                        .filter(t -> t.getValue().getStatus().equals(SENDING))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
             } finally {
                 LOGGER.info("{} Releasing mutex", this.toString());
                     mutex.release();
@@ -54,6 +50,7 @@ public class RequestsManager {
     }
 
     public void updateStatuses(){
+        LOGGER.info("Updating statuses");
         Map<SentRequest, String> toUpdate =
                 itemsManager
                         .getAllItems()
@@ -65,7 +62,11 @@ public class RequestsManager {
             try {
                 LOGGER.info("{} Trying to obtain mutex", this.toString());
                 mutex.tryAcquire(5, TimeUnit.SECONDS);
-                CoreKernelSupaClazz.updateRequestsStatus(new ArrayList<>(toUpdate.keySet()));
+                CoreKernelSupaClazz.updateRequestsStatus(toUpdate
+                        .keySet()
+                        .stream()
+                        .filter(t -> !t.getStatus().equals(NOT_FOUND))
+                        .collect(Collectors.toList()));
             } catch (Exception e) {
                 LOGGER.error("Error when updating statuses: {}", e);
             } finally {
@@ -79,30 +80,37 @@ public class RequestsManager {
         });
     }
 
-    private RequestsManager() {
-        sendScheduler.scheduleAtFixedRate(new Runnable() {
-            Map<RequestEntity, SentRequest> notSentAtm = new HashMap<>(notSent);
+    private RequestsManager() { }
+
+    private static RequestsManager init(){
+        RequestsManager manager = new RequestsManager();
+        manager.sendScheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                Map<RequestEntity, SentRequest> notSentAtm = new HashMap<>(manager.itemsManager.getAllItems()
+                        .stream()
+                        .filter(t -> t.getStatus().equals(SENDING))
+                        .collect(Collectors.toMap(SentRequest::getRequestEntity, t -> t)));
                 try {
                     LOGGER.info("{} Trying to obtain mutex", this.toString());
-                    mutex.tryAcquire(30, TimeUnit.SECONDS);
+                    manager.mutex.tryAcquire(30, TimeUnit.SECONDS);
                     CoreKernelSupaClazz.sendRequests(notSentAtm);
                 } catch (Exception e) {
                     LOGGER.error("Error when sending requests: {}", e);
-                    notSent.putAll(notSentAtm.entrySet()
-                            .stream()
-                            .filter(t -> t.getValue().getStatus().equals(SENDING))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
                 } finally {
                     LOGGER.info("{} Releasing mutex", this.toString());
-                    mutex.release();
+                    manager.mutex.release();
                 }
             }
         }, 5, 15, TimeUnit.MINUTES);
-        updateScheduler.scheduleAtFixedRate((Runnable) () -> send(), 1, 1, TimeUnit.HOURS);
+        manager.updateScheduler.scheduleAtFixedRate(manager::updateStatuses, 10, 33, TimeUnit.MINUTES);
+        return manager;
     }
 
+    public void shutDown(){
+        updateScheduler.shutdown();
+        sendScheduler.shutdown();
+    }
     public static RequestsManager getInstance(){
         return INSTANCE;
     }
