@@ -111,21 +111,6 @@ public final class CoreKernelSupaClazz {
         } catch (Exception e){
             Platform.runLater(() -> downloadFirefox.showAndWait());
         }
-
-        requestsChecker = new Thread(() -> {
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        updateRequestsStatus(MainScreen.table.getItems());
-                    } catch (Exception e){
-                        e.printStackTrace(System.out);
-                    }
-                }
-            }, 0, 1000 * 60 * 30); //Once per 30 minutes
-        });
-        requestsChecker.setDaemon(true);
     }
 
     //Unused atm
@@ -140,11 +125,12 @@ public final class CoreKernelSupaClazz {
         }
         closeDriver();;
     }
+
     public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception{
         if(entities.isEmpty()) return;
         try {
             initDriver(profile);
-            LOGGER.info("Opening Main Page");
+            LOGGER.info("Opening Main Page to send");
             driver.navigate().to(MAIN_PAGE);
             LoginPage.setPageData(entities.keySet().iterator().next());
             LoginPage.login();
@@ -175,7 +161,7 @@ public final class CoreKernelSupaClazz {
             return;
         }
         initDriver(profile);
-        LOGGER.info("Opening Main Page");
+        LOGGER.info("Opening Main Page to download");
         driver.navigate().to(MAIN_PAGE);
         LoginPage.setPageData(request);
         LoginPage.login();
@@ -230,7 +216,7 @@ public final class CoreKernelSupaClazz {
         if(requests.isEmpty()) return;
         try {
             initDriver(profile);
-            LOGGER.info("Opening Main Page");
+            LOGGER.info("Opening Main Page to update statuses");
             driver.navigate().to(MAIN_PAGE);
             LoginPage.setPageData(requests.get(0));
             LoginPage.login();
@@ -276,6 +262,19 @@ public final class CoreKernelSupaClazz {
         json.createNewFile();
         mapper.writeValue(json, request);
         return request;
+    }
+
+    public static void deleteBeforeSave(List<String> keyParts){
+        try {
+            for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
+                SentRequest request = mapper.readValue(file, SentRequest.class);
+                if (keyParts.equals(request.getKeyParts())) {
+                    file.delete();
+                }
+            }
+        } catch (Exception e){
+            LOGGER.error("Couldn't clear folder {}", e);
+        }
     }
 
     public static List<SentRequest> readAllRequests() throws IOException {

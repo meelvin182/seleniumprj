@@ -11,6 +11,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -18,6 +19,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.gui.utils.RequestsManager;
 import ru.sokolov.gui.utils.TableItemsManager;
@@ -27,9 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.sokolov.CoreKernelSupaClazz.closeDriver;
+import static ru.sokolov.gui.KeyPopup.fields;
 import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
-import static ru.sokolov.gui.RequestPopup.SENDING;
 
 
 public class MainScreen extends Application {
@@ -48,7 +50,7 @@ public class MainScreen extends Application {
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
-    public static boolean fireFoxChecked = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainScreen.class);
 
     private static int width = 1920 / 2;
     private static int height = 1080 / 2;
@@ -132,18 +134,19 @@ public class MainScreen extends Application {
         primaryStage.setTitle(WINDOW_TITLE_NAME);
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest(event -> {
-            for (SentRequest request : table.getItems()
+            CoreKernelSupaClazz.deleteBeforeSave(fields.stream().map(TextInputControl::getText).collect(Collectors.toList()));
+            for (SentRequest request : itemsManager.getAllItems()
                     .stream()
                     .filter(t -> !t.getStatus().equals(NOT_FOUND))
                     .collect(Collectors.toList())) {
                 try {
                     CoreKernelSupaClazz.saveRequestToJson(request);
                 } catch (Exception e) {
-                    e.printStackTrace(System.out);
+                    LOGGER.error("Error when saving: {}", e);
                 }
             }
-            CoreKernelSupaClazz.saveKey(KeyPopup.fields);
-            requestsManager.shutDown();
+            CoreKernelSupaClazz.saveKey(fields);
+            requestsManager.shutdown();
         });
         primaryStage.show();
         new KeyPopup(primaryStage);

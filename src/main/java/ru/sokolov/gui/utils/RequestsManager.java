@@ -55,18 +55,14 @@ public class RequestsManager {
                 itemsManager
                         .getAllItems()
                         .stream()
-                        .filter(t -> !DOWNLOADED_STATUS.equals(t.getStatus()) && !SENDING.equals(t.getStatus()))
+                        .filter(t -> !DOWNLOADED_STATUS.equals(t.getStatus()) && !SENDING.equals(t.getStatus()) && !NOT_FOUND.equals(t.getStatus()))
                         .collect(Collectors.toMap(k -> k, SentRequest::getStatus));
         toUpdate.keySet().forEach(t -> t.setStatus(UPDATING_STATUS_STATUS));
         updateService.execute(() -> {
             try {
                 LOGGER.info("{} Trying to obtain mutex", this.toString());
                 mutex.tryAcquire(5, TimeUnit.SECONDS);
-                CoreKernelSupaClazz.updateRequestsStatus(toUpdate
-                        .keySet()
-                        .stream()
-                        .filter(t -> !t.getStatus().equals(NOT_FOUND))
-                        .collect(Collectors.toList()));
+                CoreKernelSupaClazz.updateRequestsStatus(new ArrayList<>(toUpdate.keySet()));
             } catch (Exception e) {
                 LOGGER.error("Error when updating statuses: {}", e);
             } finally {
@@ -75,6 +71,7 @@ public class RequestsManager {
                         .collect(Collectors.toList())
                         .forEach(t -> t.setStatus(toUpdate.get(t)));
                 LOGGER.info("{} Releasing mutex", this.toString());
+                itemsManager.refreshItems();
                 mutex.release();
             }
         });
@@ -99,6 +96,7 @@ public class RequestsManager {
                     LOGGER.error("Error when sending requests: {}", e);
                 } finally {
                     LOGGER.info("{} Releasing mutex", this.toString());
+                    manager.itemsManager.refreshItems();
                     manager.mutex.release();
                 }
             }
@@ -107,9 +105,11 @@ public class RequestsManager {
         return manager;
     }
 
-    public void shutDown(){
+    public void shutdown(){
         updateScheduler.shutdown();
         sendScheduler.shutdown();
+        updateService.shutdown();
+        sendService.shutdown();
     }
     public static RequestsManager getInstance(){
         return INSTANCE;
