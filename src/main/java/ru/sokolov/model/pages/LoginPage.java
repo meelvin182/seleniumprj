@@ -22,6 +22,7 @@ public class LoginPage extends AbstractPage {
     private static final String TEXT_FIELD_CLASSNAME = "v-textfield";
     private static final String BUTTON_CLASSNAME = "normalButton";
     private static final String ERROR = "v-Notification-error";
+    private static final String SYSTEM_NOTIFICATION = "v-Notification-system";
 
     public static final String LOADING_INDICATOR_CLASSNAME = "v-loading-indicator";
     public static final String LOADING_INDICATOR_DELAY_CLASSNAME = "v-loading-indicator-delay";
@@ -31,7 +32,7 @@ public class LoginPage extends AbstractPage {
 
     public static void setPageData(LoginEntity entity) throws InterruptedException {
         LOGGER.info("Waiting for login page loaded");
-        driverWait = new WebDriverWait(driver, 120);
+        driverWait = new WebDriverWait(driver, 200);
         LOGGER.info("WAITING FOR ELEMENT: {}", TEXT_FIELD_CLASSNAME);
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
@@ -50,14 +51,19 @@ public class LoginPage extends AbstractPage {
         driver.findElement(By.className(BUTTON_CLASSNAME)).click();
         LOGGER.info("Waiting for error/successfully logged in");
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(ERROR)),
-                ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ MY_REQUESTS_BUTTON_ELEMENT_NAME +"')]"))));
+                ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ MY_REQUESTS_BUTTON_ELEMENT_NAME +"')]")), 
+                ExpectedConditions.presenceOfElementLocated(By.className(SYSTEM_NOTIFICATION))));
         TimeUnit.MILLISECONDS.sleep(250);
-        WebElement element;
+        WebElement element = null;
         try {
             element = driver.findElement(By.className(ERROR));
         } catch (Exception e) {
-            LOGGER.info("Logged in");
-            return;
+            try{
+                driver.findElement(By.className(SYSTEM_NOTIFICATION)).findElement(By.tagName("u")).click();
+            } catch (Exception ok){
+                LOGGER.info("Logged in");
+                return;
+            }
         }
         if(element != null){
             LOGGER.info("LOGIN IS INCORRECT: {}");

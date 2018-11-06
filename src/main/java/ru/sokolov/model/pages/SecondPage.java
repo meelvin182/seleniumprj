@@ -2,6 +2,7 @@ package ru.sokolov.model.pages;
 
 import jdk.nashorn.internal.runtime.regexp.joni.constants.TargetInfo;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -103,11 +104,20 @@ public class SecondPage extends LoginPage{
 
     public static void openRhldr(){
         setPageData();
-        rightHolderRequestButton.click();
+        driverWait.until(ExpectedConditions.elementToBeClickable(rightHolderRequestButton));
+        for(int i=0; i<3; i++){
+            try{
+                rightHolderRequestButton.click();
+                break;
+            } catch (StaleElementReferenceException e){
+                LOGGER.info("Opening rghtholder attempt {} failed", i);
+            }
+        }
+        driverWait.until(ExpectedConditions.elementToBeClickable(searchButton));
     }
 
     public static void search(RequestEntity entity) throws Exception{
-        driverWait = new WebDriverWait(driver, 120);
+        driverWait = new WebDriverWait(driver, 180);
         waitForPageLoad(driver);
         setPageData();
         TimeUnit.SECONDS.sleep(1);

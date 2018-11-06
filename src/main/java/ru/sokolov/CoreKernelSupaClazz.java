@@ -13,9 +13,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.sokolov.gui.MainScreen;
 import ru.sokolov.gui.RequestPopup;
-import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.pages.AbstractPage;
@@ -42,10 +40,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
@@ -67,7 +62,6 @@ public final class CoreKernelSupaClazz {
 
     private static WebDriver driver;
     private static ObjectMapper mapper = new ObjectMapper();
-    private static Thread requestsChecker;
     private static FirefoxProfile profile = new FirefoxProfile();
     private static FirefoxOptions options = new FirefoxOptions();
     private static final Logger LOGGER;
@@ -99,7 +93,7 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(true);
+        options.setHeadless(false);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -123,7 +117,7 @@ public final class CoreKernelSupaClazz {
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
-        closeDriver();;
+        closeDriver();
     }
 
     public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception{
@@ -138,7 +132,8 @@ public final class CoreKernelSupaClazz {
         } catch (Exception e){
             LOGGER.error("Error: {]", e);
         } finally {
-            driver.close();
+            LOGGER.info("Closing driver");
+            closeDriver();
         }
     }
 
@@ -182,6 +177,9 @@ public final class CoreKernelSupaClazz {
             tmpDir.mkdir();
         }
         try {
+            while (tmpDir.list().length<1 && "zip".equals(tmpDir.listFiles()[1].getPath().lastIndexOf("."))){
+                TimeUnit.MILLISECONDS.sleep(250);
+            }
             ZipFile zipFile = new ZipFile(getFilesInDir(tmpDir.getPath()).get(0).getPath());
             File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), tmpDir.getPath());
             File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
@@ -227,7 +225,7 @@ public final class CoreKernelSupaClazz {
             }
             e.printStackTrace(System.out);
         } finally {
-            closeDriver();;
+            closeDriver();
             LOGGER.info("Driver closed");
         }
     }
@@ -287,7 +285,7 @@ public final class CoreKernelSupaClazz {
     }
 
     public static List<SentRequest> readAllRequests(List<String> keyParts) throws IOException {
-        LOGGER.info("Reading all requests");
+        LOGGER.info("Reading requests with key: {}", keyParts.stream().map(String::toString).reduce("", String::concat));
         List<SentRequest> requests = new ArrayList<>();
         for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
             SentRequest request = mapper.readValue(file, SentRequest.class);
@@ -345,7 +343,7 @@ public final class CoreKernelSupaClazz {
         if (driverLoaded) {
             WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
-            driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
+            driver.manage().timeouts().pageLoadTimeout(300, TimeUnit.SECONDS);
             AbstractPage.setDriver(webDriver);
         } else {
             driverLoaded = loadDriver();
@@ -361,7 +359,7 @@ public final class CoreKernelSupaClazz {
         try {
             driver.close();
         } catch (Exception e){
-            LOGGER.error("Driver already closed");
+            LOGGER.error("Driver already closed: {}", e);
         }
     }
 

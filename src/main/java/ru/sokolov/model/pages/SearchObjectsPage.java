@@ -1,6 +1,7 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -62,6 +63,8 @@ public class SearchObjectsPage extends AbstractPage {
     }
 
     public static void setCadastreNums(String cadastreNumVal) {
+        cadastreNums.clear();
+        cadastreNums.sendKeys(Keys.ENTER);
         cadastreNums.sendKeys(cadastreNumVal);
     }
 
@@ -98,7 +101,7 @@ public class SearchObjectsPage extends AbstractPage {
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '" + name + "')]")));
         List<WebElement> tableRows = table.findElement(By.tagName("table")).findElements(By.tagName("tr"));
         for(WebElement element : tableRows){
-            if(element.getText().equals(value)){
+            if(element.getText().toLowerCase().equals(value.toLowerCase())){
                 LOGGER.info("CHOOSING: {}", element.getText());
                 element.click();
                 return;

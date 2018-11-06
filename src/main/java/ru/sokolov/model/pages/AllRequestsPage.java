@@ -129,7 +129,6 @@ public class AllRequestsPage extends AbstractPage {
         element.findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
         LOGGER.info("Download started");
         //Hope this is enough
-        TimeUnit.SECONDS.sleep(3);
     }
 
     public static void downloadRequest(SentRequest request) throws Exception{
@@ -137,7 +136,6 @@ public class AllRequestsPage extends AbstractPage {
         LOGGER.info("Downloading request: {}", request.getRequestNum());
         getRequestWebElement(request).findElement(By.className(DOWNLOAD_BUTTON_CLASS_NAME)).click();
         LOGGER.info("Download started");
-        TimeUnit.SECONDS.sleep(3);
     }
 
     private static WebElement getRequestWebElement(SentRequest request) throws Exception{
@@ -155,18 +153,12 @@ public class AllRequestsPage extends AbstractPage {
         setPageData();
         LOGGER.info("Updating search params");
         update.click();
-        TimeUnit.MILLISECONDS.sleep(500);
-        LOGGER.info("Waiting till yellow indicator removed");
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_DELAY_CLASSNAME)));
+        textField.clear();
+        textField.sendKeys(Keys.ENTER);
         TimeUnit.MILLISECONDS.sleep(250);
-        LOGGER.info("Waiting till red indicator removed");
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(LOADING_INDICATOR_WAIT_CLASSNAME)));
-        LOGGER.info("Waiting till odd element removed");
-        driverWait.until(ExpectedConditions.invisibilityOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_ODD)));
         LOGGER.info("Waiting till even element has ID: {}", request.getRequestNum());
-        driverWait.until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(By.className(ROW_ELEMENT_CLASS_NAME_EVEN)),
-                ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]"))));
+        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")));
         LOGGER.info("Providing request element");
-        return driver.findElement(By.className(ROW_ELEMENT_CLASS_NAME_EVEN));
+        return driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath(".."));
     }
 }

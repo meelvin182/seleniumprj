@@ -26,7 +26,7 @@ public class RequestsManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestsManager.class);
 
-    private final Semaphore mutex = new Semaphore(1, true);
+    private static final Semaphore mutex = new Semaphore(1, true);
     private static RequestsManager INSTANCE = init();
     private final ExecutorService updateService = Executors.newSingleThreadExecutor();
     private final ExecutorService sendService = Executors.newScheduledThreadPool(5);
@@ -39,7 +39,10 @@ public class RequestsManager {
             try {
                 LOGGER.info("{} Trying to obtain mutex", this.toString());
                 mutex.acquire();
-                CoreKernelSupaClazz.sendRequests(itemsManager.getToSend());
+                CoreKernelSupaClazz.sendRequests(itemsManager.getAllItems()
+                        .stream()
+                        .filter(t -> t.getStatus().equals(SENDING))
+                        .collect(Collectors.toMap(SentRequest::getRequestEntity, t -> t)));
             } catch (Exception e) {
                 LOGGER.error("Error when sending requests: {}", e);
             } finally {
@@ -90,14 +93,14 @@ public class RequestsManager {
                         .collect(Collectors.toMap(SentRequest::getRequestEntity, t -> t)));
                 try {
                     LOGGER.info("{} Trying to obtain mutex", this.toString());
-                    manager.mutex.tryAcquire(30, TimeUnit.SECONDS);
+                    mutex.tryAcquire(30, TimeUnit.SECONDS);
                     CoreKernelSupaClazz.sendRequests(notSentAtm);
                 } catch (Exception e) {
                     LOGGER.error("Error when sending requests: {}", e);
                 } finally {
                     LOGGER.info("{} Releasing mutex", this.toString());
                     manager.itemsManager.refreshItems();
-                    manager.mutex.release();
+                    mutex.release();
                 }
             }
         }, 5, 15, TimeUnit.MINUTES);

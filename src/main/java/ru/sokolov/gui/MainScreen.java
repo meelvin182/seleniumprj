@@ -109,7 +109,6 @@ public class MainScreen extends Application {
             new Thread(() -> {
                 try {
                     requestsManager.updateStatuses();
-                    table.refresh();
                 } catch (Exception e) {
                     downloadFirefox.showAndWait();
                     e.printStackTrace(System.out);
