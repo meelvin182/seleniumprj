@@ -42,7 +42,7 @@ public class MainScreen extends Application {
     public static final String WINDOW_TITLE_NAME = "ЕГРН Запросы";
     public static final String DOWNLOADED_STATUS = "Скачано";
     public static final String DOWNLOADING_STATUS = "Скачивается...";
-    public static final String DOWNLOAD_FAILED_STATUS = "Ошибка при загрузке";
+    public static final String FILE_NOT_FOUND = "Будет скачан при обновлении статусов";
     public static final String UPDATING_STATUS_STATUS = "Статус обновляется";
 
     private static final TableItemsManager itemsManager = TableItemsManager.getInstance();
@@ -173,7 +173,7 @@ public class MainScreen extends Application {
                     @Override
                     public TableCell call(final TableColumn<SentRequest, String> param) {
                         final TableCell<SentRequest, String> cell = new TableCell<SentRequest, String>() {
-                            final Button btn = new Button("Скачать");
+                            final Button btn = new Button("Открыть");
                             @Override
                             public void updateItem(String item, boolean empty) {
                                 super.updateItem(item, empty);
@@ -186,19 +186,14 @@ public class MainScreen extends Application {
                                         setGraphic(btn);
                                         setText(null);
                                         btn.setOnAction(event -> {
-                                            new Thread(() -> {
-                                                sentRequest.setStatus(DOWNLOADING_STATUS);
-                                                table.refresh();
-                                                try {
-                                                    CoreKernelSupaClazz.downloadRequest(sentRequest);
-                                                    sentRequest.setStatus(DOWNLOADED_STATUS);
-                                                    table.refresh();
-                                                } catch (Exception e){
-                                                    sentRequest.setStatus(DOWNLOAD_FAILED_STATUS);
-                                                    table.refresh();
-                                                    e.printStackTrace(System.out);
+                                            try{
+                                                if(!CoreKernelSupaClazz.openRequest(sentRequest)){
+                                                    sentRequest.setStatus(FILE_NOT_FOUND);
+                                                    itemsManager.refreshItems();
                                                 }
-                                            }).start();
+                                            } catch (Exception e){
+                                                LOGGER.error("Error occured when tried to open request folder: {}", e);
+                                            }
                                         });
                                     }
                                 }

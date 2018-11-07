@@ -1,8 +1,10 @@
 package ru.sokolov.model.pages;
 
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.CoreKernelSupaClazz;
@@ -11,16 +13,11 @@ import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 
-import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_DELAY_CLASSNAME;
-import static ru.sokolov.model.pages.LoginPage.LOADING_INDICATOR_WAIT_CLASSNAME;
-import static ru.sokolov.model.pages.SecondPage.MY_REQUESTS_BUTTON_ELEMENT_NAME;
 
 public class AllRequestsPage extends AbstractPage {
 

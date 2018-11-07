@@ -1,10 +1,8 @@
 package ru.sokolov.model.pages;
 
-import com.google.common.base.Predicate;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ru.sokolov.model.entities.RequestEntity;
 
 public abstract class AbstractPage {
 

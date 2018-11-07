@@ -40,7 +40,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -149,26 +148,14 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    public static void downloadRequest(SentRequest request) throws Exception
+    public static boolean openRequest(SentRequest request) throws Exception
     {
         File file = new File(request.getPath() + "\\" + request.getRequestNum()+".xml");
         if(file.exists()){
             Desktop.getDesktop().open(file.getParentFile());
-            return;
-        }
-        initDriver(profile);
-        LOGGER.info("Opening Main Page to download");
-        driver.navigate().to(MAIN_PAGE);
-        LoginPage.setPageData(request);
-        LoginPage.login();
-        AllRequestsPage.downloadRequest(request);
-        TimeUnit.SECONDS.sleep(3);
-        closeDriver();
-        try {
-            unzipDownloadedRequest(request);
-        } catch (Exception e){
-            closeDriver();
-            throw e;
+            return true;
+        } else {
+            return false;
         }
     }
 
