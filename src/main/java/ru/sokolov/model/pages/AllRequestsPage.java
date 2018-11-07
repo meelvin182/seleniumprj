@@ -141,7 +141,7 @@ public class AllRequestsPage extends AbstractPage {
         textField.clear();
         textField.sendKeys(Keys.ENTER);
         try{
-            WebElement element = driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath(".."));
+            WebElement element = driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath("..")).findElement(By.xpath(".."));
             return element;
         } catch (NoSuchElementException e){
             LOGGER.info("No such element on 1st page");
@@ -162,6 +162,6 @@ public class AllRequestsPage extends AbstractPage {
         LOGGER.info("Waiting till even element has ID: {}", request.getRequestNum());
         driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")));
         LOGGER.info("Providing request element");
-        return driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath(".."));
+        return driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath("..")).findElement(By.xpath(".."));
     }
 }

@@ -25,5 +25,6 @@ public abstract class AbstractPage {
 
     public static void setDriver(WebDriver driver) {
         AbstractPage.driver = driver;
+        setDriverWait(new WebDriverWait(driver, 180));
     }
 }

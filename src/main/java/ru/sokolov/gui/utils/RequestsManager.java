@@ -93,7 +93,7 @@ public class RequestsManager {
                         .collect(Collectors.toMap(SentRequest::getRequestEntity, t -> t)));
                 try {
                     LOGGER.info("{} Trying to obtain mutex", this.toString());
-                    mutex.tryAcquire(30, TimeUnit.SECONDS);
+                    mutex.acquire();
                     CoreKernelSupaClazz.sendRequests(notSentAtm);
                 } catch (Exception e) {
                     LOGGER.error("Error when sending requests: {}", e);

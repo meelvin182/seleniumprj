@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -90,7 +91,7 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
                 "application/zip");
         profile.setPreference("browser.download.manager.showWhenStarting", false );
-        profile.setPreference("pdfjs.disabled", true );
+//        profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
         options.setHeadless(false);
@@ -163,10 +164,10 @@ public final class CoreKernelSupaClazz {
         AllRequestsPage.downloadRequest(request);
         TimeUnit.SECONDS.sleep(3);
         closeDriver();
-
         try {
             unzipDownloadedRequest(request);
         } catch (Exception e){
+            closeDriver();
             throw e;
         }
     }
@@ -177,7 +178,7 @@ public final class CoreKernelSupaClazz {
             tmpDir.mkdir();
         }
         try {
-            while (tmpDir.list().length<1 && "zip".equals(tmpDir.listFiles()[1].getPath().lastIndexOf("."))){
+            while (tmpDir.list().length<1 || !tmpDir.list()[0].endsWith("zip")){
                 TimeUnit.MILLISECONDS.sleep(250);
             }
             ZipFile zipFile = new ZipFile(getFilesInDir(tmpDir.getPath()).get(0).getPath());
@@ -185,8 +186,8 @@ public final class CoreKernelSupaClazz {
             File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
             FileUtils.cleanDirectory(tmpDir);
             request.setStatus(DOWNLOADED_STATUS);
-            Desktop.getDesktop().open(unzippedUnzippedFIle.getParentFile());
         } catch (Exception e){
+            FileUtils.cleanDirectory(tmpDir);
             throw e;
         }
     }
