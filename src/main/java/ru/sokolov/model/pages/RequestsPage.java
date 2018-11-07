@@ -29,6 +29,7 @@ public class RequestsPage extends AbstractPage {
             throw new WrongCadastreNumException();
         }
         LOGGER.info("Opening request overview");
+        driverWait.until(ExpectedConditions.elementToBeClickable(By.className(SEND_BUTTON_CLASS_NAME)));
         driver.findElement(By.className(SEND_BUTTON_CLASS_NAME)).click();
     }
 }

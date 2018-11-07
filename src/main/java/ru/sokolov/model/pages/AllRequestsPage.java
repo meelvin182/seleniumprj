@@ -1,9 +1,6 @@
 package ru.sokolov.model.pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -143,6 +140,12 @@ public class AllRequestsPage extends AbstractPage {
         WebElement textField = driver.findElement(By.className(SEARCH_BY_NUM_FIELD_CLASS_NAME));
         textField.clear();
         textField.sendKeys(Keys.ENTER);
+        try{
+            WebElement element = driver.findElement(By.xpath("//*[contains(text(), '"+ request.getRequestNum() +"')]")).findElement(By.xpath(".."));
+            return element;
+        } catch (NoSuchElementException e){
+            LOGGER.info("No such element on 1st page");
+        }
         LOGGER.info("Textfield filled");
         TimeUnit.MILLISECONDS.sleep(250);
         textField.sendKeys(request.getRequestNum());

@@ -146,6 +146,7 @@ public class MainScreen extends Application {
             }
             CoreKernelSupaClazz.saveKey(fields);
             requestsManager.shutdown();
+            System.exit(0);
         });
         primaryStage.show();
         new KeyPopup(primaryStage);

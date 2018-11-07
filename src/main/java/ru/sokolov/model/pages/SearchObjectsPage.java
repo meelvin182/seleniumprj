@@ -121,7 +121,7 @@ public class SearchObjectsPage extends AbstractPage {
         setPageData(entity);
         TimeUnit.MILLISECONDS.sleep(300);
         pushFind();
-        System.out.println("Request sent");
+        System.out.println("Searching for cadastre info");
     }
 
 
