@@ -11,10 +11,10 @@ import ru.sokolov.model.entities.LoginEntity;
 import ru.sokolov.model.exceptions.CouldntLoginException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static ru.sokolov.CoreKernelSupaClazz.MAIN_PAGE;
 import static ru.sokolov.model.pages.SecondPage.MY_REQUESTS_BUTTON_ELEMENT_NAME;
 
 public class LoginPage extends AbstractPage {
@@ -32,9 +32,22 @@ public class LoginPage extends AbstractPage {
 
     public static void setPageData(LoginEntity entity) throws InterruptedException {
         LOGGER.info("Waiting for login page loaded");
+        waitForPageLoad(driver);
+        driverWait = new WebDriverWait(driver, 30);
+        for(int i=0; i<3; i++){
+            try{
+                LOGGER.info("ATTEMPT 1");
+                driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
+                LOGGER.info("SUCCESS");
+                break;
+            } catch (Exception e){
+                LOGGER.info("FAILED");
+                driver.navigate().to(MAIN_PAGE);
+                waitForPageLoad(driver);
+            }
+        }
         driverWait = new WebDriverWait(driver, 200);
         LOGGER.info("WAITING FOR ELEMENT: {}", TEXT_FIELD_CLASSNAME);
-        driverWait.until(ExpectedConditions.presenceOfElementLocated(By.className(TEXT_FIELD_CLASSNAME)));
         List<WebElement> list = new ArrayList<>();
         while (list.size() != 5) {
             list.addAll(driver.findElements(By.className("v-textfield")));

@@ -29,7 +29,7 @@ public class RequestsManager {
     private static final Semaphore mutex = new Semaphore(1, true);
     private static RequestsManager INSTANCE = init();
     private final ExecutorService updateService = Executors.newSingleThreadExecutor();
-    private final ExecutorService sendService = Executors.newScheduledThreadPool(5);
+    private final ExecutorService sendService = Executors.newSingleThreadExecutor();
     private final TableItemsManager itemsManager = TableItemsManager.getInstance();
     private final ScheduledExecutorService sendScheduler = Executors.newScheduledThreadPool(1);
     private final ScheduledExecutorService updateScheduler = Executors.newScheduledThreadPool(1);
@@ -64,7 +64,7 @@ public class RequestsManager {
         updateService.execute(() -> {
             try {
                 LOGGER.info("{} Trying to obtain mutex", this.toString());
-                mutex.tryAcquire(5, TimeUnit.SECONDS);
+                mutex.acquire();
                 CoreKernelSupaClazz.updateRequestsStatus(new ArrayList<>(toUpdate.keySet()));
             } catch (Exception e) {
                 LOGGER.error("Error when updating statuses: {}", e);

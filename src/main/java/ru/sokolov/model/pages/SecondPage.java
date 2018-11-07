@@ -113,6 +113,7 @@ public class SecondPage extends LoginPage{
                 LOGGER.info("Opening rghtholder attempt {} failed", i);
             }
         }
+        setPageData();
         driverWait.until(ExpectedConditions.elementToBeClickable(searchButton));
     }
 

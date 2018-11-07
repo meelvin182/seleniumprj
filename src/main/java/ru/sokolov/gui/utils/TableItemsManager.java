@@ -33,6 +33,7 @@ public class TableItemsManager {
 
     public void loadItems(List<TextField> fields){
         try {
+            allItems.clear();
             allItems.addAll(!StringUtils.isEmpty(fields.get(4).getText())
                     ? CoreKernelSupaClazz.readAllRequests(fields.stream().map(t -> t.getText()).collect(Collectors.toList()))
                     : CoreKernelSupaClazz.readAllRequests());
