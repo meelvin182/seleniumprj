@@ -165,9 +165,10 @@ public final class CoreKernelSupaClazz {
             tmpDir.mkdir();
         }
         try {
-            while (tmpDir.list().length<1 || !tmpDir.list()[0].endsWith("zip")){
+            while (tmpDir.list().length < 1 || !tmpDir.list()[0].endsWith("zip")){
                 TimeUnit.MILLISECONDS.sleep(250);
             }
+            TimeUnit.SECONDS.sleep(2);
             ZipFile zipFile = new ZipFile(getFilesInDir(tmpDir.getPath()).get(0).getPath());
             File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), tmpDir.getPath());
             File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
