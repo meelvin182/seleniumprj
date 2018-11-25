@@ -14,7 +14,6 @@ public class Main {
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws Exception {
-        System.out.println(format("%08d", 123456789));
     }
 
     //CTRL CV TO TEST
