@@ -8,6 +8,9 @@ import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.exceptions.WrongCadastreNumException;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Map;
 
 import static ru.sokolov.gui.RequestPopup.NOT_FOUND;

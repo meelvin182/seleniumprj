@@ -1,23 +1,12 @@
 package ru.sokolov;
 
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
-import ru.sokolov.model.entities.RequestEntity;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static ru.sokolov.CoreKernelSupaClazz.TEST_CADASTRE_NUM;
-import static ru.sokolov.CoreKernelSupaClazz.TEST_KEY;
 
 @Deprecated
 public class Main {

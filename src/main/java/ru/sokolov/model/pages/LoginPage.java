@@ -61,6 +61,7 @@ public class LoginPage extends AbstractPage {
 
     public static void login() throws Exception {
         LOGGER.info("LOGGING IN");
+        waitForPageLoad(driver);
         driver.findElement(By.className(BUTTON_CLASSNAME)).click();
         LOGGER.info("Waiting for error/successfully logged in");
         driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(ERROR)),

@@ -51,7 +51,7 @@ import static ru.sokolov.gui.MainScreen.downloadFirefox;
 
 public final class CoreKernelSupaClazz {
 
-    private static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
+    public static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
     private static final String LOGS_PATH = APPDATA_PATH + "\\logs";
@@ -64,11 +64,20 @@ public final class CoreKernelSupaClazz {
     private static ObjectMapper mapper = new ObjectMapper();
     private static FirefoxProfile profile = new FirefoxProfile();
     private static FirefoxOptions options = new FirefoxOptions();
+
     private static final Logger LOGGER;
+
+    private static CaptchaSolver solver;
 
     public static boolean driverLoaded = loadDriver();
 
     static {
+        LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
+        try {
+            solver = new CaptchaSolver();
+        } catch (Exception e){
+            LOGGER.error("Couldn't load model: {}", e);
+        }
         File file = new File(APPDATA_PATH);
         if (!file.exists()) {
             file.mkdir();
@@ -78,7 +87,6 @@ public final class CoreKernelSupaClazz {
             tmpDir.mkdir();
         }
         System.setProperty("logs.path", LOGS_PATH);
-        LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
 
         //Set Location to store files after downloading.
         profile.setPreference("browser.download.dir", tmpDir.getPath());
@@ -93,7 +101,7 @@ public final class CoreKernelSupaClazz {
 //        profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(true);
+        options.setHeadless(false);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -105,6 +113,16 @@ public final class CoreKernelSupaClazz {
         } catch (Exception e){
             Platform.runLater(() -> downloadFirefox.showAndWait());
         }
+    }
+
+    public static String solveCapcha(File file){
+        String solved = "";
+        try {
+            solver.solve(file);
+        } catch (Exception e){
+            LOGGER.error("Error while solving capthca: {]", e);
+        }
+        return solved;
     }
 
     //Unused atm
