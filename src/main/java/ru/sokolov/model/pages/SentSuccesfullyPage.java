@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 
 public class SentSuccesfullyPage extends AbstractPage {
 
-    private static final String POPUP_CLASS_NAME = "v-label-tipFont";
-    private static final String BUTTON_CLASS_NAME = "v-button-wrap";
-    private static final String BUTTON_TEXT = "Продолжить работу";
+    public static final String POPUP_CLASS_NAME = "v-label-tipFont";
+    public static final String BUTTON_CLASS_NAME = "v-button-wrap";
+    public static final String BUTTON_TEXT = "Продолжить работу";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestOverviewPage.class);
 

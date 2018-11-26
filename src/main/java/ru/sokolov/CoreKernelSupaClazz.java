@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -52,7 +53,7 @@ import static ru.sokolov.gui.MainScreen.downloadFirefox;
 public final class CoreKernelSupaClazz {
 
     public static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
-    private static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
+    public static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
     private static final String LOGS_PATH = APPDATA_PATH + "\\logs";
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
@@ -71,6 +72,9 @@ public final class CoreKernelSupaClazz {
 
     public static boolean driverLoaded = loadDriver();
 
+    public static final int headlessWidth = 1920;
+    public static final int headlessHeight = 1080;
+
     static {
         LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
         try {
@@ -83,8 +87,14 @@ public final class CoreKernelSupaClazz {
             file.mkdir();
         }
         File tmpDir = new File(APPDATA_TMP_PATH);
-        if(!tmpDir.exists()){
-            tmpDir.mkdir();
+        try {
+            if (!tmpDir.exists()) {
+                tmpDir.mkdir();
+            } else {
+                FileUtils.cleanDirectory(tmpDir);
+            }
+        } catch (IOException e){
+            LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
         }
         System.setProperty("logs.path", LOGS_PATH);
 
@@ -101,7 +111,7 @@ public final class CoreKernelSupaClazz {
 //        profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
-        options.setHeadless(false);
+        options.setHeadless(true);
 
         if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
             String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
@@ -118,7 +128,7 @@ public final class CoreKernelSupaClazz {
     public static String solveCapcha(File file){
         String solved = "";
         try {
-            solver.solve(file);
+            solved = solver.solve(file);
         } catch (Exception e){
             LOGGER.error("Error while solving capthca: {]", e);
         }
@@ -186,10 +196,15 @@ public final class CoreKernelSupaClazz {
             while (tmpDir.list().length < 1 || !tmpDir.list()[0].endsWith("zip")){
                 TimeUnit.MILLISECONDS.sleep(250);
             }
+            String folder = request.getPath();
+            if(folder == null || folder.isEmpty() || folder.equals("null")){
+                folder = "C:/Users/" + System.getProperty("user.name") + "/Downloads/";
+                request.setPath(folder);
+            }
             TimeUnit.SECONDS.sleep(2);
             ZipFile zipFile = new ZipFile(getFilesInDir(tmpDir.getPath()).get(0).getPath());
             File unzippedZipFile = unzipSpecificExtension("zip", zipFile, request.getRequestNum(), tmpDir.getPath());
-            File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), request.getPath());
+            File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), folder);
             FileUtils.cleanDirectory(tmpDir);
             request.setStatus(DOWNLOADED_STATUS);
         } catch (Exception e){
@@ -303,6 +318,12 @@ public final class CoreKernelSupaClazz {
         return requests;
     }
 
+    public static File getDownloadedCaptcha() throws Exception{
+        File captcha = getFilesInDir(APPDATA_TMP_PATH, "").get(0);
+        captcha.renameTo(new File(APPDATA_TMP_PATH + "captcha.png"));
+        return captcha;
+    }
+
     private static List<File> getFilesInDir(String dir) throws IOException{
         return getFilesInDir(dir, "");
     }
@@ -351,6 +372,7 @@ public final class CoreKernelSupaClazz {
             WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
             driver.manage().timeouts().pageLoadTimeout(300, TimeUnit.SECONDS);
+            driver.manage().window().setSize(new Dimension(headlessWidth, headlessHeight));
             AbstractPage.setDriver(webDriver);
         } else {
             driverLoaded = loadDriver();

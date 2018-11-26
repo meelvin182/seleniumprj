@@ -1,25 +1,31 @@
 package ru.sokolov.model.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.sokolov.CaptchaCoordsProvider;
 import ru.sokolov.CoreKernelSupaClazz;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
 import ru.sokolov.model.exceptions.WrongCadastreNumException;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static ru.sokolov.CoreKernelSupaClazz.APPDATA_PATH;
 import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
 import static ru.sokolov.gui.RequestPopup.SENT;
+import static ru.sokolov.model.pages.SentSuccesfullyPage.POPUP_CLASS_NAME;
 
 public class RequestOverviewPage extends AbstractPage{
 
@@ -27,6 +33,7 @@ public class RequestOverviewPage extends AbstractPage{
     private static final String SEND_REQUEST_BUTTON = "Отправить запрос";
     private static final String SIGN_AND_SEND_BUTTON = "Подписать и отправить запрос";
     private static final String NEXT_IMAGE = "Другую картинку";
+    private static final String WRONG_CAPTCHA_CLASSNAME = "f-alert-content";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestOverviewPage.class);
 
@@ -62,13 +69,27 @@ public class RequestOverviewPage extends AbstractPage{
                 driverWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")));
                 LOGGER.info("SOLVING CAPCHA");
                 while(true){
-                    String sovedCaptcha = CoreKernelSupaClazz.solveCapcha(downloadCaptcha());
-                    //TODO Enter and send captcha
-                    break;
+                    Map.Entry<File, WebElement> entry = downloadCaptcha();
+                    String sovedCaptcha = CoreKernelSupaClazz.solveCapcha(entry.getKey());
+                    LOGGER.info("CAPTCHA SOLVED AS: {}", sovedCaptcha);
+                    WebElement textField = driver.findElement(By.className("v-textfield"));
+                    textField.sendKeys(sovedCaptcha);
+                    textField.sendKeys(Keys.ENTER);
+                    LOGGER.info("LOCATING {} BUTTON", SEND_REQUEST_BUTTON);
+                    driver.findElement(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")).click();
+                    TimeUnit.MILLISECONDS.sleep(250);
+                    LOGGER.info("WAIT UNTIL CAPTCHA NOT PRESENTED");
+                    driverWait.until(ExpectedConditions.or(ExpectedConditions.presenceOfElementLocated(By.className(WRONG_CAPTCHA_CLASSNAME)),
+                            ExpectedConditions.presenceOfElementLocated(By.className(POPUP_CLASS_NAME))));
+                    LOGGER.info("CHECKING POPUP");
+                    try{
+                        driver.findElement(By.className(POPUP_CLASS_NAME)).getText();
+                        LOGGER.info("Request sent");
+                        break;
+                    } catch (NoSuchElementException e){
+                        TimeUnit.MILLISECONDS.sleep(500);
+                    }
                 }
-                LOGGER.info("LOCATING {} BUTTON", SEND_REQUEST_BUTTON);
-                driver.findElement(By.xpath("//*[contains(text(), '"+ SEND_REQUEST_BUTTON +"')]")).click();
-                LOGGER.info("Request sent");
                 request.setRequestNum(SentSuccesfullyPage.getRequestNum());
                 request.setStatus(SENT);
                 LOGGER.info("SWITCHING TO RIGHTHOLDER");
@@ -87,23 +108,21 @@ public class RequestOverviewPage extends AbstractPage{
         driver.findElement(By.xpath("//*[contains(text(), '" + NEXT_IMAGE + "')]")).click();
     }
 
-    public static File downloadCaptcha() throws Exception{
+    public static Map.Entry<File, WebElement> downloadCaptcha() throws Exception{
         String images_folder = APPDATA_PATH + "\\images";
         File folder = new File(images_folder);
         if (!folder.exists()){
             folder.mkdir();
         }
         WebElement image = driver.findElements(By.className("v-embedded-image")).get(1).findElement(By.tagName("img")); /**/
-        org.openqa.selenium.Dimension size = image.getSize();
         LOGGER.info("Waiting until captcha is presented");
         driverWait.until(ExpectedConditions.visibilityOf(image));
-
-        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        BufferedImage fimg = ImageIO.read(screenshot);
-        BufferedImage croppedImage = fimg.getSubimage(321, 534, size.getWidth(),
-                size.getHeight());
+        AShot ashot = new AShot();
+        ashot.shootingStrategy(ShootingStrategies.viewportPasting(100));
+        Screenshot shot = ashot.coordsProvider(new CaptchaCoordsProvider()).takeScreenshot(driver, image);
         File f = new File(images_folder + "\\captcha.png");
-        ImageIO.write(croppedImage, "PNG", f);
-        return f;
+        ImageIO.write(shot.getImage(), "PNG", f);
+        return new AbstractMap.SimpleEntry<>(f, image);
     }
+
 }

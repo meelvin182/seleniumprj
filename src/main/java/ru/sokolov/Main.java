@@ -2,11 +2,14 @@ package ru.sokolov;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static ru.sokolov.CoreKernelSupaClazz.APPDATA_PATH;
 
 @Deprecated
 public class Main {
@@ -14,6 +17,7 @@ public class Main {
     private static List<String> regions = loadRegions();
 
     public static void main(String[] args) throws Exception {
+        System.out.println(CoreKernelSupaClazz.solveCapcha(new File(APPDATA_PATH + "\\images\\captcha.png")));
     }
 
     //CTRL CV TO TEST

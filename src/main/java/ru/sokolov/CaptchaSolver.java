@@ -20,7 +20,7 @@ public class CaptchaSolver {
 
 
     public CaptchaSolver() throws IOException {
-        InputStream is = CaptchaSolver.class.getClass().getResourceAsStream("/model.zip");
+        InputStream is = CaptchaSolver.class.getResourceAsStream("/model.zip");
         model = ModelSerializer.restoreComputationGraph(is);
     }
 
