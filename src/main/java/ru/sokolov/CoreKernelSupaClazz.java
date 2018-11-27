@@ -52,10 +52,11 @@ import static ru.sokolov.gui.MainScreen.downloadFirefox;
 
 public final class CoreKernelSupaClazz {
 
+
     public static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
+    public static final String LOGS_PATH = APPDATA_PATH + "\\logs";
     public static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
-    private static final String LOGS_PATH = APPDATA_PATH + "\\logs";
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
 
     public static final String TEST_KEY = "f5939ffe-f955-421a-b30b-884a5c527803";
@@ -76,15 +77,17 @@ public final class CoreKernelSupaClazz {
     public static final int headlessHeight = 1080;
 
     static {
+        System.setProperty("logs.path", LOGS_PATH);
         LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
-        try {
-            solver = new CaptchaSolver();
-        } catch (Exception e){
-            LOGGER.error("Couldn't load model: {}", e);
-        }
         File file = new File(APPDATA_PATH);
         if (!file.exists()) {
             file.mkdir();
+        }
+        try {
+            solver = new CaptchaSolver(loadModel().getAbsolutePath());
+        } catch (Exception e){
+            LOGGER.error("Couldn't load model: {}", e);
+            System.exit(1);
         }
         File tmpDir = new File(APPDATA_TMP_PATH);
         try {
@@ -96,7 +99,6 @@ public final class CoreKernelSupaClazz {
         } catch (IOException e){
             LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
         }
-        System.setProperty("logs.path", LOGS_PATH);
 
         //Set Location to store files after downloading.
         profile.setPreference("browser.download.dir", tmpDir.getPath());
@@ -252,13 +254,26 @@ public final class CoreKernelSupaClazz {
         }
     }
 
+    private static File loadModel(){
+        File model = new File(APPDATA_PATH + "\\model.zip");
+        if(!model.exists()){
+            try {
+                Files.copy(CoreKernelSupaClazz.class.getResourceAsStream("/model.zip"), Paths.get(model.toURI()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e){
+                LOGGER.error("COULDN'T LOAD MODEL ZIP: ", e);
+            }
+        }
+        return model;
+    }
+
     private static boolean loadDriver() {
         try {
-            File temp = File.createTempFile("driver", ".exe");
-            temp.deleteOnExit();
-            InputStream in = RequestPopup.class.getResourceAsStream("/geckodriver.exe");
-            Files.copy(in, Paths.get(temp.toURI()), StandardCopyOption.REPLACE_EXISTING);
-            System.setProperty("webdriver.gecko.driver", temp.getAbsolutePath());
+            File driver = new File(APPDATA_PATH + "\\driver.exe");
+            if(!driver.exists()){
+                InputStream in = CoreKernelSupaClazz.class.getResourceAsStream("/geckodriver.exe");
+                Files.copy(in, Paths.get(driver.toURI()), StandardCopyOption.REPLACE_EXISTING);
+            }
+            System.setProperty("webdriver.gecko.driver", driver.getAbsolutePath());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
