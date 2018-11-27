@@ -159,7 +159,7 @@
                 <bundledJreAsFallback>false</bundledJreAsFallback>
                 <minVersion>1.8.0</minVersion>
                 <jdkPreference>preferJre</jdkPreference>
-                <runtimeBits>32</runtimeBits>
+                <runtimeBits>64</runtimeBits>
               </jre>
               <versionInfo>
                 <fileVersion>1.0.0.0</fileVersion>
