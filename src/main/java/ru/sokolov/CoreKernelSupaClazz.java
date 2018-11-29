@@ -9,9 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.ProfilesIni;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.RequestEntity;
@@ -31,6 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +45,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
@@ -54,7 +59,7 @@ public final class CoreKernelSupaClazz {
 
     public static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
     public static final String LOGS_PATH = APPDATA_PATH + "\\logs";
-    public static final String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
+    public static String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
     public static final String MAIN_PAGE = "https://rosreestr.ru/wps/portal/p/cc_present/ir_egrn";
 
@@ -99,7 +104,18 @@ public final class CoreKernelSupaClazz {
             LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
         }
 
-        //Set Location to store files after downloading.
+        if(Pattern.matches(".*\\p{InCyrillic}.*", APPDATA_PATH)){
+            profile = new FirefoxProfile(new File(loadProfile()));
+            APPDATA_TMP_PATH = System.getenv("SystemDrive") + "\\egrntmp";
+            tmpDir = new File(APPDATA_TMP_PATH);
+            tmpDir.mkdir();
+            try {
+                FileUtils.cleanDirectory(tmpDir);
+            } catch (Exception e){
+                LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
+            }
+        }
+
         profile.setPreference("browser.download.dir", tmpDir.getPath());
         profile.setPreference("browser.download.manager.showWhenStarting", false);
         profile.setPreference("browser.download.folderList", 2);
@@ -109,19 +125,15 @@ public final class CoreKernelSupaClazz {
         profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
                 "application/zip");
         profile.setPreference("browser.download.manager.showWhenStarting", false );
-//        profile.setPreference("pdfjs.disabled", true );
 
         options.setProfile(profile);
         options.setHeadless(true);
 
-        if(SystemUtils.IS_OS_WINDOWS && !SystemUtils.IS_OS_WINDOWS_10){
-            String path = System.getenv("ProgramFiles") + "\\Mozilla Firefox\\firefox.exe";
-            options.setBinary(new File(path).exists() ? path : path.replace("Program Files", "Program Files (x86)"));
-        }
 
         try {
             options.getBinary();
         } catch (Exception e){
+            LOGGER.info("NO FIREFOX FOUND");
             Platform.runLater(() -> downloadFirefox.showAndWait());
         }
     }
@@ -278,6 +290,21 @@ public final class CoreKernelSupaClazz {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static String loadProfile(){
+        try {
+            File folder = new File(System.getenv("SystemDrive") + "\\egrnprofile");
+            folder.mkdir();
+            File copyTo = new File(System.getenv("SystemDrive") + "\\egrnprofile\\user.js");
+            copyTo.createNewFile();
+            InputStream in = CoreKernelSupaClazz.class.getResourceAsStream("/user.js");
+            Files.copy(in, Paths.get(copyTo.getPath()), StandardCopyOption.REPLACE_EXISTING);
+            return  folder.getPath();
+        } catch (Exception e){
+            LOGGER.info("COULDN'T COPY PROFILE: ", e);
+        }
+        return null;
     }
 
     public static SentRequest saveRequestToJson(SentRequest request) throws Exception {
