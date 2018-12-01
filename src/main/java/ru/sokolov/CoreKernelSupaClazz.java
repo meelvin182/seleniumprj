@@ -6,15 +6,11 @@ import javafx.scene.control.TextField;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.firefox.ProfilesIni;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.RequestEntity;
@@ -34,7 +30,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +40,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
@@ -57,7 +51,7 @@ import static ru.sokolov.gui.MainScreen.downloadFirefox;
 public final class CoreKernelSupaClazz {
 
 
-    public static final String APPDATA_PATH = System.getenv("APPDATA") + "\\egrn";
+    public static final String APPDATA_PATH = System.getenv("SystemDrive") + "\\egrntmp";
     public static final String LOGS_PATH = APPDATA_PATH + "\\logs";
     public static String APPDATA_TMP_PATH = APPDATA_PATH + "\\tmp";
     private static final String SAVED_KEY_PATH = APPDATA_PATH + "\\saved_key.txt";
@@ -83,40 +77,9 @@ public final class CoreKernelSupaClazz {
     static {
         System.setProperty("logs.path", LOGS_PATH);
         LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
-        File file = new File(APPDATA_PATH);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        try {
-            solver = new CaptchaSolver(loadModel().getAbsolutePath());
-        } catch (Exception e){
-            LOGGER.error("Couldn't load model: {}", e);
-            System.exit(1);
-        }
-        File tmpDir = new File(APPDATA_TMP_PATH);
-        try {
-            if (!tmpDir.exists()) {
-                tmpDir.mkdir();
-            } else {
-                FileUtils.cleanDirectory(tmpDir);
-            }
-        } catch (IOException e){
-            LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
-        }
+        initInEnv();
 
-        if(Pattern.matches(".*\\p{InCyrillic}.*", APPDATA_PATH)){
-            profile = new FirefoxProfile(new File(loadProfile()));
-            APPDATA_TMP_PATH = System.getenv("SystemDrive") + "\\egrntmp";
-            tmpDir = new File(APPDATA_TMP_PATH);
-            tmpDir.mkdir();
-            try {
-                FileUtils.cleanDirectory(tmpDir);
-            } catch (Exception e){
-                LOGGER.error("COULDN'T CLEAR TMP DIR ", e);
-            }
-        }
-
-        profile.setPreference("browser.download.dir", tmpDir.getPath());
+        profile.setPreference("browser.download.dir", APPDATA_PATH);
         profile.setPreference("browser.download.manager.showWhenStarting", false);
         profile.setPreference("browser.download.folderList", 2);
         profile.setPreference("browser.download.panel.shown", false);
@@ -124,7 +87,7 @@ public final class CoreKernelSupaClazz {
                 "application/x-gzip");
         profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
                 "application/zip");
-        profile.setPreference("browser.download.manager.showWhenStarting", false );
+        profile.setPreference("browser.download.manager.showWhenStarting", false);
 
         options.setProfile(profile);
         options.setHeadless(true);
@@ -132,17 +95,17 @@ public final class CoreKernelSupaClazz {
 
         try {
             options.getBinary();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.info("NO FIREFOX FOUND");
             Platform.runLater(() -> downloadFirefox.showAndWait());
         }
     }
 
-    public static String solveCapcha(File file){
+    public static String solveCapcha(File file) {
         String solved = "";
         try {
             solved = solver.solve(file);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Error while solving capthca: {]", e);
         }
         return solved;
@@ -161,8 +124,8 @@ public final class CoreKernelSupaClazz {
         closeDriver();
     }
 
-    public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception{
-        if(entities.isEmpty()) return;
+    public static void sendRequests(Map<RequestEntity, SentRequest> entities) throws Exception {
+        if (entities.isEmpty()) return;
         try {
             initDriver(profile);
             LOGGER.info("Opening Main Page to send");
@@ -170,7 +133,7 @@ public final class CoreKernelSupaClazz {
             LoginPage.setPageData(entities.keySet().iterator().next());
             LoginPage.login();
             RequestOverviewPage.sendReuests(entities);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Error: {]", e);
         } finally {
             LOGGER.info("Closing driver");
@@ -180,19 +143,19 @@ public final class CoreKernelSupaClazz {
 
     @Deprecated
     public static void getRequests(RequestEntity entity) throws Exception {
-        try{
+        try {
             AllRequestsPage.process(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace(System.out);
         } finally {
-            closeDriver();;
+            closeDriver();
+            ;
         }
     }
 
-    public static boolean openRequest(SentRequest request) throws Exception
-    {
-        File file = new File(request.getPath() + "\\" + request.getRequestNum()+".xml");
-        if(file.exists()){
+    public static boolean openRequest(SentRequest request) throws Exception {
+        File file = new File(request.getPath() + "\\" + request.getRequestNum() + ".xml");
+        if (file.exists()) {
             Desktop.getDesktop().open(file.getParentFile());
             return true;
         } else {
@@ -200,17 +163,17 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    public static void unzipDownloadedRequest(SentRequest request) throws Exception{
+    public static void unzipDownloadedRequest(SentRequest request) throws Exception {
         File tmpDir = new File(APPDATA_TMP_PATH);
-        if(!tmpDir.exists()){
+        if (!tmpDir.exists()) {
             tmpDir.mkdir();
         }
         try {
-            while (tmpDir.list().length < 1 || !tmpDir.list()[0].endsWith("zip")){
+            while (tmpDir.list().length < 1 || !tmpDir.list()[0].endsWith("zip")) {
                 TimeUnit.MILLISECONDS.sleep(250);
             }
             String folder = request.getPath();
-            if(folder == null || folder.isEmpty() || folder.equals("null")){
+            if (folder == null || folder.isEmpty() || folder.equals("null")) {
                 folder = "C:/Users/" + System.getProperty("user.name") + "/Downloads/";
                 request.setPath(folder);
             }
@@ -220,7 +183,7 @@ public final class CoreKernelSupaClazz {
             File unzippedUnzippedFIle = unzipSpecificExtension("xml", new ZipFile(unzippedZipFile.getPath()), unzippedZipFile.getName().replaceAll(".zip", ""), folder);
             FileUtils.cleanDirectory(tmpDir);
             request.setStatus(DOWNLOADED_STATUS);
-        } catch (Exception e){
+        } catch (Exception e) {
             FileUtils.cleanDirectory(tmpDir);
             throw e;
         }
@@ -228,10 +191,10 @@ public final class CoreKernelSupaClazz {
 
     private static File unzipSpecificExtension(String ext, ZipFile zipFile, String name, String folder) throws IOException {
         Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()){
+        while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if(ext.equals(entry.getName().substring(entry.getName().length() - ext.length()))){
-                File tmpFile = new File(folder + "\\" + name +"." + ext);
+            if (ext.equals(entry.getName().substring(entry.getName().length() - ext.length()))) {
+                File tmpFile = new File(folder + "\\" + name + "." + ext);
                 InputStream in = zipFile.getInputStream(entry);
                 OutputStream outputStream = new FileOutputStream(tmpFile);
                 IOUtils.copy(in, outputStream);
@@ -244,9 +207,9 @@ public final class CoreKernelSupaClazz {
         return null;
     }
 
-    public static void updateRequestsStatus(List<SentRequest> requests) throws Exception{
+    public static void updateRequestsStatus(List<SentRequest> requests) throws Exception {
         LOGGER.info("Started updating request statuses, requests to check amount: {}", requests.size());
-        if(requests.isEmpty()) return;
+        if (requests.isEmpty()) return;
         try {
             initDriver(profile);
             LOGGER.info("Opening Main Page to update statuses");
@@ -254,8 +217,8 @@ public final class CoreKernelSupaClazz {
             LoginPage.setPageData(requests.get(0));
             LoginPage.login();
             AllRequestsPage.updateRequestsStatus(requests);
-        } catch (Exception e){
-            if(e.getMessage().contains("Cannot find firefox binary in PATH")){
+        } catch (Exception e) {
+            if (e.getMessage().contains("Cannot find firefox binary in PATH")) {
                 Platform.runLater(downloadFirefox::showAndWait);
             }
             e.printStackTrace(System.out);
@@ -265,12 +228,37 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    private static File loadModel(){
+    private static void initInEnv() {
+        File file = new File(APPDATA_PATH);
+        File tmpDir = new File(APPDATA_TMP_PATH);
+        try {
+            if (!file.exists()) {
+                file.mkdir();
+                Files.setAttribute(Paths.get(file.toURI()), "dos:hidden", true);
+            }
+            if (!tmpDir.exists()) {
+                tmpDir.mkdir();
+            } else {
+                FileUtils.cleanDirectory(tmpDir);
+            }
+            solver = new CaptchaSolver(loadModel().getAbsolutePath());
+        } catch (Exception e) {
+            LOGGER.info("ERROR WHILE INITIALIZING REQUIRED DIRECTORIES AND FILES: ", e);
+        }
+        try {
+            solver = new CaptchaSolver(loadModel().getAbsolutePath());
+        } catch (Exception e) {
+            LOGGER.error("Couldn't load model: {}", e);
+            System.exit(1);
+        }
+    }
+
+    private static File loadModel() {
         File model = new File(APPDATA_PATH + "\\model.zip");
-        if(!model.exists()){
+        if (!model.exists()) {
             try {
                 Files.copy(CoreKernelSupaClazz.class.getResourceAsStream("/model.zip"), Paths.get(model.toURI()), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e){
+            } catch (IOException e) {
                 LOGGER.error("COULDN'T LOAD MODEL ZIP: ", e);
             }
         }
@@ -280,7 +268,7 @@ public final class CoreKernelSupaClazz {
     private static boolean loadDriver() {
         try {
             File driver = new File(APPDATA_PATH + "\\driver.exe");
-            if(!driver.exists()){
+            if (!driver.exists()) {
                 InputStream in = CoreKernelSupaClazz.class.getResourceAsStream("/geckodriver.exe");
                 Files.copy(in, Paths.get(driver.toURI()), StandardCopyOption.REPLACE_EXISTING);
             }
@@ -292,7 +280,7 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    public static String loadProfile(){
+    public static String loadProfile() {
         try {
             File folder = new File(System.getenv("SystemDrive") + "\\egrnprofile");
             folder.mkdir();
@@ -300,8 +288,8 @@ public final class CoreKernelSupaClazz {
             copyTo.createNewFile();
             InputStream in = CoreKernelSupaClazz.class.getResourceAsStream("/user.js");
             Files.copy(in, Paths.get(copyTo.getPath()), StandardCopyOption.REPLACE_EXISTING);
-            return  folder.getPath();
-        } catch (Exception e){
+            return folder.getPath();
+        } catch (Exception e) {
             LOGGER.info("COULDN'T COPY PROFILE: ", e);
         }
         return null;
@@ -325,7 +313,7 @@ public final class CoreKernelSupaClazz {
         return request;
     }
 
-    public static void deleteBeforeSave(List<String> keyParts){
+    public static void deleteBeforeSave(List<String> keyParts) {
         try {
             for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
                 SentRequest request = mapper.readValue(file, SentRequest.class);
@@ -333,7 +321,7 @@ public final class CoreKernelSupaClazz {
                     file.delete();
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Couldn't clear folder {}", e);
         }
     }
@@ -352,24 +340,24 @@ public final class CoreKernelSupaClazz {
         List<SentRequest> requests = new ArrayList<>();
         for (File file : getFilesInDir(APPDATA_PATH, ".json")) {
             SentRequest request = mapper.readValue(file, SentRequest.class);
-            if(keyParts.equals(request.getKeyParts())){
+            if (keyParts.equals(request.getKeyParts())) {
                 requests.add(mapper.readValue(file, SentRequest.class));
             }
         }
         return requests;
     }
 
-    public static File getDownloadedCaptcha() throws Exception{
+    public static File getDownloadedCaptcha() throws Exception {
         File captcha = getFilesInDir(APPDATA_TMP_PATH, "").get(0);
         captcha.renameTo(new File(APPDATA_TMP_PATH + "captcha.png"));
         return captcha;
     }
 
-    private static List<File> getFilesInDir(String dir) throws IOException{
+    private static List<File> getFilesInDir(String dir) throws IOException {
         return getFilesInDir(dir, "");
     }
 
-    private static List<File> getFilesInDir(String dir, String ext) throws IOException{
+    private static List<File> getFilesInDir(String dir, String ext) throws IOException {
         return Files.walk(Paths.get(dir))
                 .filter(Files::isRegularFile)
                 .filter(p -> p.toString().endsWith(ext))
@@ -377,38 +365,38 @@ public final class CoreKernelSupaClazz {
                 .collect(Collectors.toList());
     }
 
-    public static void saveKey(List<TextField> fields){
+    public static void saveKey(List<TextField> fields) {
         StringBuilder key = new StringBuilder();
         for (TextField field : fields) {
-            if(StringUtils.isEmpty(field.getText())){
+            if (StringUtils.isEmpty(field.getText())) {
                 key.append("-");
                 break;
             }
             key.append(field.getText()).append("-");
         }
-        String finalKey = key.toString().substring(0, key.length()-1);
+        String finalKey = key.toString().substring(0, key.length() - 1);
         LOGGER.info("SAVING KEY: {}", finalKey);
-        try{
-        BufferedWriter writer = new BufferedWriter(new FileWriter(SAVED_KEY_PATH));
-        writer.write(finalKey);
-        writer.close();
-        } catch (IOException e){
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(SAVED_KEY_PATH));
+            writer.write(finalKey);
+            writer.close();
+        } catch (IOException e) {
             System.out.println("Couldn't read key");
             e.printStackTrace(System.out);
         }
     }
 
-    public static void loadKey(List<TextField> fields){
-        try{
+    public static void loadKey(List<TextField> fields) {
+        try {
             BufferedReader reader = new BufferedReader(new FileReader(SAVED_KEY_PATH));
             List<String> keyParts = Arrays.asList(reader.readLine().split("-"));
             IntStream.range(0, keyParts.size()).forEach(i -> fields.get(i).setText(keyParts.get(i)));
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Couldn't load key: {}", e);
         }
     }
 
-    private static void initDriver(FirefoxProfile profile){
+    private static void initDriver(FirefoxProfile profile) {
         if (driverLoaded) {
             WebDriver webDriver = new FirefoxDriver(options);
             driver = webDriver;
@@ -421,20 +409,16 @@ public final class CoreKernelSupaClazz {
         }
     }
 
-    public static void initDriver(){
+    public static void initDriver() {
         initDriver(profile);
     }
 
-    public static void closeDriver(){
+    public static void closeDriver() {
         try {
             driver.close();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Driver already closed: {}", e);
         }
-    }
-
-    //TODO This one will close program if it's unpaid
-    public static void twentyThousandsMethod() {
     }
 
 }

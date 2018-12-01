@@ -36,9 +36,7 @@ public class CaptchaSolver {
     protected void finalize() {}
 
     public String solve(File captchaPath) throws IOException {
-        List<String> labelList =
-                Arrays.asList(
-                        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+        List<String> labelList = Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
 
         INDArray image = loadImage(captchaPath);
         INDArray[] output = model.output(image);
