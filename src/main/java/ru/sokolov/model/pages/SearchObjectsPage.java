@@ -27,7 +27,7 @@ public class SearchObjectsPage extends AbstractPage {
 
     private static int regionsAmountOnDropdown;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchObjectsPage.class);
+    public static Logger LOGGER;
 
 
     public static void setPageData(RequestEntity entity) {

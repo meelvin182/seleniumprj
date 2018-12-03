@@ -23,7 +23,7 @@ import static ru.sokolov.gui.RequestPopup.SENDING;
 
 public class TableItemsManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TableItemsManager.class);
+    public static Logger LOGGER;
 
     private TableView<SentRequest> table;
     private TextField filter;

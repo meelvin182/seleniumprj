@@ -69,7 +69,7 @@ public class RequestPopup {
     private Text textHolder = new Text();
     private double oldHeight = 0;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestPopup.class);
+    public static Logger LOGGER;
 
     public RequestPopup(Stage parent) {
         StackPane layout = new StackPane();

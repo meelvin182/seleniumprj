@@ -36,7 +36,7 @@ public class KeyPopup {
     private List<String> fieldLenghts = Arrays.stream("6F9619FF-8B86-D011-B42D-00CF4FC964FF".split("-"))
             .collect(Collectors.toList());
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyPopup.class);
+    public static Logger LOGGER;
 
     public KeyPopup(Stage parent) {
         CoreKernelSupaClazz.loadKey(fields);
@@ -57,7 +57,7 @@ public class KeyPopup {
             textField.setPromptText(fieldLenghts.get(index));
             textField.setOnKeyTyped(event -> {
                 int maxLength = fieldLenghts.get(index).length();
-                if (textField.getText().length() == maxLength) {
+                if (textField.getText() != null && textField.getText().length() == maxLength) {
                     if (index < fields.size() - 1) {
                         event.consume();
                         fields.get(index + 1).requestFocus();
@@ -80,8 +80,10 @@ public class KeyPopup {
         Button saveButton = new Button();
         saveButton.setText(SAVE);
         saveButton.setOnAction(event -> {
+            itemsManager.getAllItems().forEach(CoreKernelSupaClazz::saveRequestToJson);
             itemsManager.loadItems(fields);
             itemsManager.refreshItems();
+            CoreKernelSupaClazz.saveKey(fields);
             stage.close();
         });
         saveButton.setPadding(new Insets(16));
@@ -104,10 +106,6 @@ public class KeyPopup {
                 stage.close();
             }
         });
-        stage.setOnCloseRequest(event -> {
-                    itemsManager.loadItems(fields);
-                    itemsManager.refreshItems();
-                });
         stage.setScene(scene);
         stage.show();
 

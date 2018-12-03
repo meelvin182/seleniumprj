@@ -28,7 +28,7 @@ public class LoginPage extends AbstractPage {
     public static final String LOADING_INDICATOR_DELAY_CLASSNAME = "v-loading-indicator-delay";
     public static final String LOADING_INDICATOR_WAIT_CLASSNAME = "v-loading-indicator-wait";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginPage.class);
+    public static Logger LOGGER;
 
     public static void setPageData(LoginEntity entity) throws InterruptedException {
         LOGGER.info("Waiting for login page loaded");
@@ -81,6 +81,7 @@ public class LoginPage extends AbstractPage {
         }
         if(element != null){
             LOGGER.info("LOGIN IS INCORRECT: {}");
+
             throw new CouldntLoginException();
         }
     }

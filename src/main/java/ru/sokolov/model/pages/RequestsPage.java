@@ -15,7 +15,7 @@ public class RequestsPage extends AbstractPage {
     private static final String FOUND_NOTIFICATION_CLASS_NAME = "v-table-cell-content-cadastral_num";
     private static final String SEND_BUTTON_CLASS_NAME = "v-table-cell-content-cadastral_num";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestsPage.class);
+    public static Logger LOGGER;
 
     public static void continueToRequestOverview(RequestEntity entity) throws Exception{
         SearchObjectsPage.sendRequest(entity);

@@ -37,7 +37,7 @@ public class AllRequestsPage extends AbstractPage {
     private static WebElement reset;
     private static List<WebElement> rows;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AllRequestsPage.class);
+    public static Logger LOGGER;
 
     public static void setPageData(){
         waitForPageLoad(driver);

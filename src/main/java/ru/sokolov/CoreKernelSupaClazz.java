@@ -1,6 +1,7 @@
 package ru.sokolov;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.ClassPath;
 import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import org.apache.commons.io.FileUtils;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.sokolov.model.entities.RequestEntity;
 import ru.sokolov.model.entities.SentRequest;
+import ru.sokolov.model.exceptions.CouldntLoginException;
 import ru.sokolov.model.pages.AbstractPage;
 import ru.sokolov.model.pages.AllRequestsPage;
 import ru.sokolov.model.pages.LoginPage;
@@ -30,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,6 +50,8 @@ import java.util.zip.ZipFile;
 
 import static ru.sokolov.gui.MainScreen.DOWNLOADED_STATUS;
 import static ru.sokolov.gui.MainScreen.downloadFirefox;
+import static ru.sokolov.gui.RequestPopup.COULDNT_LOGIN;
+import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
 
 public final class CoreKernelSupaClazz {
 
@@ -65,7 +70,7 @@ public final class CoreKernelSupaClazz {
     private static FirefoxProfile profile = new FirefoxProfile();
     private static FirefoxOptions options = new FirefoxOptions();
 
-    private static final Logger LOGGER;
+    public static Logger LOGGER;
 
     private static CaptchaSolver solver;
 
@@ -75,8 +80,6 @@ public final class CoreKernelSupaClazz {
     public static final int headlessHeight = 1080;
 
     static {
-        System.setProperty("logs.path", LOGS_PATH);
-        LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
         initInEnv();
 
         profile.setPreference("browser.download.dir", APPDATA_PATH);
@@ -134,9 +137,13 @@ public final class CoreKernelSupaClazz {
             LoginPage.login();
             RequestOverviewPage.sendReuests(entities);
         } catch (Exception e) {
+            if(e instanceof CouldntLoginException){
+                entities.values().forEach(t -> t.setStatus(COULDNT_LOGIN));
+            }
             LOGGER.error("Error: {]", e);
         } finally {
             LOGGER.info("Closing driver");
+            entities.values().stream().filter(t -> !t.getStatus().equals(NOT_FOUND)).forEach(CoreKernelSupaClazz::saveRequestToJson);
             closeDriver();
         }
     }
@@ -241,6 +248,7 @@ public final class CoreKernelSupaClazz {
             } else {
                 FileUtils.cleanDirectory(tmpDir);
             }
+            initLogs();
             solver = new CaptchaSolver(loadModel().getAbsolutePath());
         } catch (Exception e) {
             LOGGER.info("ERROR WHILE INITIALIZING REQUIRED DIRECTORIES AND FILES: ", e);
@@ -295,7 +303,7 @@ public final class CoreKernelSupaClazz {
         return null;
     }
 
-    public static SentRequest saveRequestToJson(SentRequest request) throws Exception {
+    public static SentRequest saveRequestToJson(SentRequest request) {
         StringBuilder builder = new StringBuilder();
         String fileName = builder
                 .append("\\")
@@ -308,8 +316,12 @@ public final class CoreKernelSupaClazz {
                 .replaceAll(":", "_");
         String path = APPDATA_PATH + fileName;
         File json = new File(path);
-        json.createNewFile();
-        mapper.writeValue(json, request);
+        try {
+            json.createNewFile();
+            mapper.writeValue(json, request);
+        } catch (Exception e){
+            LOGGER.info("Couldn't save reuests");
+        }
         return request;
     }
 
@@ -394,6 +406,32 @@ public final class CoreKernelSupaClazz {
         } catch (Exception e) {
             LOGGER.error("Couldn't load key: {}", e);
         }
+    }
+
+    private static void initLogs(){
+        System.setProperty("logs.path", LOGS_PATH);
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        LOGGER = LoggerFactory.getLogger(CoreKernelSupaClazz.class);
+        new File(LOGS_PATH).mkdirs();
+
+        try {
+            for (final ClassPath.ClassInfo info : ClassPath.from(loader).getTopLevelClasses()) {
+                if (info.getName().startsWith("ru.sokolov.")) {
+                    final Class<?> clazz = info.load();
+                    try {
+                        Field log = clazz.getDeclaredField("LOGGER");
+                        LOGGER.info("SETTING LOGGER FOR CLASS: {}", clazz);
+                        log.setAccessible(true);
+                        log.set(log, LoggerFactory.getLogger(clazz));
+                    } catch (NoSuchFieldException e){
+                        LOGGER.info("{} HAS NO LOGGER", clazz);
+                    }
+                }
+            }
+        } catch (Exception e){
+            LOGGER.error("COULDN'T INIT LOGGERS: ", e);
+        }
+
     }
 
     private static void initDriver(FirefoxProfile profile) {

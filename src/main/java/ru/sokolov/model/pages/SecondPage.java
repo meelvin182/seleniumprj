@@ -30,7 +30,7 @@ public class SecondPage extends LoginPage{
     private static WebElement myRequestsButton;
     private static WebElement myBillsButton;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecondPage.class);
+    public static Logger LOGGER;
 
     public static void setPageData() {
         waitForPageLoad(driver);

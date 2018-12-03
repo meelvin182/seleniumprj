@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.sokolov.CoreKernelSupaClazz.LOGS_PATH;
 import static ru.sokolov.gui.KeyPopup.fields;
 import static ru.sokolov.gui.RequestPopup.NOT_FOUND;
 
@@ -50,7 +51,7 @@ public class MainScreen extends Application {
 
     public static final TableView<SentRequest> table = new TableView<>();
     public static Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
-    private static final Logger LOGGER = LoggerFactory.getLogger(MainScreen.class);
+    public static Logger LOGGER;
 
     private static int width = 1920 / 2;
     private static int height = 1080 / 2;
@@ -67,27 +68,17 @@ public class MainScreen extends Application {
     @Override
     public void start(Stage primaryStage) {
         table.getColumns().addAll(getColumns());
-        table.setColumnResizePolicy((param) -> true );
-        table.setPrefHeight(height-100);
+        table.setColumnResizePolicy((param) -> true);
+        table.setPrefHeight(height - 100);
 
         Alert downloadFirefox = new Alert(Alert.AlertType.ERROR);
         downloadFirefox.setTitle("No Firefox found");
         downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
-        downloadFirefox.setOnCloseRequest(new EventHandler<DialogEvent>() {
-            @Override
-            public void handle(DialogEvent event) {
-                System.exit(1);
-            }
-        });
+        downloadFirefox.setOnCloseRequest(event -> System.exit(1));
 
         TextField filter = new TextField();
         filter.setPromptText("Поиск запросов");
-        filter.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                itemsManager.refreshItems();
-            }
-        });
+        filter.setOnKeyPressed(event -> itemsManager.refreshItems());
         itemsManager.setTable(table);
         itemsManager.setFilter(filter);
 
@@ -138,11 +129,7 @@ public class MainScreen extends Application {
                     .stream()
                     .filter(t -> !t.getStatus().equals(NOT_FOUND))
                     .collect(Collectors.toList())) {
-                try {
-                    CoreKernelSupaClazz.saveRequestToJson(request);
-                } catch (Exception e) {
-                    LOGGER.error("Error when saving: {}", e);
-                }
+                CoreKernelSupaClazz.saveRequestToJson(request);
             }
             CoreKernelSupaClazz.saveKey(fields);
             requestsManager.shutdown();
@@ -157,6 +144,9 @@ public class MainScreen extends Application {
         List<TableColumn<SentRequest, String>> columns = new ArrayList<>();
         TableColumn<SentRequest, String> num = new TableColumn<SentRequest, String>("Номер запроса");
         num.setCellValueFactory(new PropertyValueFactory<>("requestNum"));
+
+        TableColumn<SentRequest, String> cadastreNum = new TableColumn<SentRequest, String>("Кадастровый номер");
+        cadastreNum.setCellValueFactory(new PropertyValueFactory<>("cadastreNum"));
 
         TableColumn<SentRequest, String> date = new TableColumn<SentRequest, String>("Дата создания");
         date.setCellValueFactory(new PropertyValueFactory<>("creationDate"));
@@ -175,6 +165,7 @@ public class MainScreen extends Application {
                     public TableCell call(final TableColumn<SentRequest, String> param) {
                         final TableCell<SentRequest, String> cell = new TableCell<SentRequest, String>() {
                             final Button btn = new Button("Открыть");
+
                             @Override
                             public void updateItem(String item, boolean empty) {
                                 super.updateItem(item, empty);
@@ -187,12 +178,12 @@ public class MainScreen extends Application {
                                         setGraphic(btn);
                                         setText(null);
                                         btn.setOnAction(event -> {
-                                            try{
-                                                if(!CoreKernelSupaClazz.openRequest(sentRequest)){
+                                            try {
+                                                if (!CoreKernelSupaClazz.openRequest(sentRequest)) {
                                                     sentRequest.setStatus(FILE_NOT_FOUND);
                                                     itemsManager.refreshItems();
                                                 }
-                                            } catch (Exception e){
+                                            } catch (Exception e) {
                                                 LOGGER.error("Error occured when tried to open request folder: {}", e);
                                             }
                                         });
@@ -206,6 +197,7 @@ public class MainScreen extends Application {
         download.setCellFactory(cellFactory);
 
         columns.add(num);
+        columns.add(cadastreNum);
         columns.add(date);
         columns.add(status);
         columns.add(folder);

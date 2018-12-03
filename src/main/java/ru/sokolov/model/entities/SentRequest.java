@@ -12,6 +12,7 @@ public class SentRequest implements Serializable, LoginEntity{
     private List<String> keyParts;
 
     private String requestNum;
+    private String cadastreNum;
     private String creationDate;
     private String status;
     private boolean download;
@@ -24,6 +25,7 @@ public class SentRequest implements Serializable, LoginEntity{
     public SentRequest(RequestEntity entity) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime currentDate = LocalDateTime.now();
+        this.cadastreNum = entity.getCadastreNums();
         this.requestNum = entity.getCadastreNums();
         this.creationDate = dtf.format(currentDate);
         this.status = SENDING;
@@ -31,6 +33,14 @@ public class SentRequest implements Serializable, LoginEntity{
         this.path = path + entity.getFilePath();
         this.keyParts = entity.getKeyParts();
         requestEntity = entity;
+    }
+
+    public String getCadastreNum() {
+        return cadastreNum;
+    }
+
+    public void setCadastreNum(String cadastreNum) {
+        this.cadastreNum = cadastreNum;
     }
 
     public String getRequestNum() {

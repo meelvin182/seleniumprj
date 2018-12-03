@@ -35,7 +35,7 @@ public class RequestOverviewPage extends AbstractPage{
     private static final String NEXT_IMAGE = "Другую картинку";
     private static final String WRONG_CAPTCHA_CLASSNAME = "f-alert-content";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestOverviewPage.class);
+    public static Logger LOGGER;
 
     public static void setPageData(RequestEntity entity){
         waitForPageLoad(driver);

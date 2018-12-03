@@ -23,7 +23,7 @@ import static ru.sokolov.gui.RequestPopup.SENDING;
 
 public class RequestsManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestsManager.class);
+    public static Logger LOGGER;
 
     private static final Semaphore mutex = new Semaphore(1, true);
     private static RequestsManager INSTANCE = init();
