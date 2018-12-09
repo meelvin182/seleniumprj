@@ -81,20 +81,7 @@ public final class CoreKernelSupaClazz {
 
     static {
         initInEnv();
-
-        profile.setPreference("browser.download.dir", APPDATA_TMP_PATH);
-        profile.setPreference("browser.download.manager.showWhenStarting", false);
-        profile.setPreference("browser.download.folderList", 2);
-        profile.setPreference("browser.download.panel.shown", false);
-        profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
-                "application/x-gzip");
-        profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
-                "application/zip");
-        profile.setPreference("browser.download.manager.showWhenStarting", false);
-
-        options.setProfile(profile);
-        options.setHeadless(true);
-
+        setDriverOptions();
 
         try {
             options.getBinary();
@@ -232,6 +219,26 @@ public final class CoreKernelSupaClazz {
         } finally {
             closeDriver();
             LOGGER.info("Driver closed");
+        }
+    }
+
+    private static void setDriverOptions(){
+        try {
+            profile.setPreference("browser.download.dir", APPDATA_TMP_PATH);
+            profile.setPreference("browser.download.manager.showWhenStarting", false);
+            profile.setPreference("browser.download.folderList", 2);
+            profile.setPreference("browser.download.panel.shown", false);
+            profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
+                    "application/x-gzip");
+            profile.setPreference("browser.helperApps.neverAsk.saveToDisk",
+                    "application/zip");
+            profile.setPreference("browser.download.manager.showWhenStarting", false);
+
+            options.setProfile(profile);
+            options.setHeadless(true);
+        } catch (Exception e){
+            LOGGER.error("COULDN'T SET DRIVER PARAMS: ", e);
+            System.exit(1);
         }
     }
 
