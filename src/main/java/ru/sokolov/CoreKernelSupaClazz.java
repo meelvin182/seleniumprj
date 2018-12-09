@@ -82,7 +82,7 @@ public final class CoreKernelSupaClazz {
     static {
         initInEnv();
 
-        profile.setPreference("browser.download.dir", APPDATA_PATH);
+        profile.setPreference("browser.download.dir", APPDATA_TMP_PATH);
         profile.setPreference("browser.download.manager.showWhenStarting", false);
         profile.setPreference("browser.download.folderList", 2);
         profile.setPreference("browser.download.panel.shown", false);
@@ -249,6 +249,7 @@ public final class CoreKernelSupaClazz {
                 FileUtils.cleanDirectory(tmpDir);
             }
             initLogs();
+            LOGGER.trace("LOGS INITED");
             solver = new CaptchaSolver(loadModel().getAbsolutePath());
         } catch (Exception e) {
             LOGGER.info("ERROR WHILE INITIALIZING REQUIRED DIRECTORIES AND FILES: ", e);
