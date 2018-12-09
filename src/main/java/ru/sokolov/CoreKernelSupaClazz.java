@@ -82,6 +82,7 @@ public final class CoreKernelSupaClazz {
     static {
         initInEnv();
         setDriverOptions();
+        Thread.currentThread().setUncaughtExceptionHandler(new LogAllExceptonsHandler());
 
         try {
             options.getBinary();
@@ -460,11 +461,12 @@ public final class CoreKernelSupaClazz {
     }
 
     public static void closeDriver() {
-        try {
-            driver.close();
-        } catch (Exception e) {
-            LOGGER.error("Driver already closed: {}", e);
+        if(driver != null) {
+            try {
+                driver.close();
+            } catch (Exception e) {
+                LOGGER.error("Driver already closed: {}", e);
+            }
         }
     }
-
 }
