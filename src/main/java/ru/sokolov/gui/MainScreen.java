@@ -60,6 +60,7 @@ public class MainScreen extends Application {
         downloadFirefox.setTitle("No Firefox found");
         downloadFirefox.setHeaderText("Для работы приложения требуется Mozilla Firefox");
         downloadFirefox.setOnCloseRequest(event -> {
+            LOGGER.info("EXIT AS NO FF FOUND");
             System.exit(0);
         });
     }
