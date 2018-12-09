@@ -226,7 +226,7 @@ public class RequestPopup {
                 values.put(Integer.parseInt(region[0]), region[1]);
             }
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+            LOGGER.error("Couldn't load regions: ", e);
             System.exit(1);
         }
         return values;

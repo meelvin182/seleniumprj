@@ -134,6 +134,7 @@ public class MainScreen extends Application {
             CoreKernelSupaClazz.saveKey(fields);
             requestsManager.shutdown();
             CoreKernelSupaClazz.closeDriver();
+            LOGGER.info("Closing app");
             System.exit(0);
         });
         primaryStage.show();
