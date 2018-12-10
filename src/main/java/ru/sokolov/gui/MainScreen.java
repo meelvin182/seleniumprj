@@ -198,8 +198,8 @@ public class MainScreen extends Application {
                 };
         download.setCellFactory(cellFactory);
 
-        columns.add(num);
         columns.add(cadastreNum);
+        columns.add(num);
         columns.add(date);
         columns.add(status);
         columns.add(folder);

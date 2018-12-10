@@ -53,7 +53,8 @@ public class TableItemsManager {
                 .stream()
                 .filter(t -> t.getRequestNum().contains(filterExp) ||
                         t.getCreationDate().contains(filterExp) ||
-                        t.getStatus().contains(filterExp))
+                        t.getStatus().contains(filterExp) ||
+                        t.getCadastreNum().contains(filterExp))
                 .collect(Collectors.toList());
     }
 
